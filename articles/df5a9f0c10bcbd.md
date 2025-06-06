@@ -7,6 +7,15 @@ published: true # trueを指定する
 published_at: 2025-06-06 22:22 # 未来の日時を指定する
 ---
 
+# 概要
+
+基本的には個人用です。（すみません）
+ただ書き方で遊んでみたかったのです。
+
+## 感想
+埋め込みがうまくいかないことがある。
+iframeをそのまま使えたら、楽な気がする。
+
 ### Gist
 @[gist](https://gist.github.com/testkun08080/bc4c7700d215ebf57a7f07731a03035a)
 
