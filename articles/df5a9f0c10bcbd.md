@@ -4,7 +4,7 @@ emoji: "🐈"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["とりあえず", test, ZenCLI]
 published: true # trueを指定する
-published_at: 2025-06-6 22:22 # 未来の日時を指定する
+published_at: 2025-06-06 22:22 # 未来の日時を指定する
 ---
 
 ### Gist
@@ -15,7 +15,7 @@ published_at: 2025-06-6 22:22 # 未来の日時を指定する
 @[codepen](https://codepen.io/firletta/pen/WbeJLXY)
 
 ### Slideshare (大共感)
-@[slideshare](https://www.slideshare.net/slideshow/guide-of-hanayama-onsen-by-programmer-onsen/273970196)
+@[slideshare](nTrXFa4nUPfgDK)
 
 ### Speakerdeck (フィンランドサウナはいつか行ってみたい)
 @[speakerdeck](0c1fafbb6d51488688227b18de098c28)
