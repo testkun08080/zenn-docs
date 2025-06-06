@@ -21,7 +21,6 @@
     ```
 
 
----
 # 見出し1です
 ## 見出し2だね
 ### 見出し3かな
@@ -144,60 +143,48 @@ https://github.com/testkun08080/testkun08080/blob/main/README.md#L1-L6
 https://github.com/testkun08080/testkun08080/blob/main/README.md#L6
 
 
-
-@[gist](GistのページURL)
-
-@[codepen](ページのURL)
-
-@[slideshare](スライドのkey)
-
-@[speakerdeck](スライドのID)
+### Gist
+@[gist](https://gist.github.com/testkun08080/bc4c7700d215ebf57a7f07731a03035a)
 
 
-例:
-@[speakerdeck](4f926da9cb4cd0001f00a1ff)
-@[speakerdeck](4f926da9cb4cd0001f00a1ff?slide=24)
+### Codepen (猫はいつもいいね🐈)
+@[codepen](https://codepen.io/firletta/pen/WbeJLXY)
+
+### Slideshare (大共感)
+@[slideshare](https://www.slideshare.net/slideshow/guide-of-hanayama-onsen-by-programmer-onsen/273970196)
+
+### Speakerdeck (フィンランドサウナはいつか行ってみたい)
+@[speakerdeck](0c1fafbb6d51488688227b18de098c28)
+
+### Docswell (またねこ)
+@[docswell](https://www.docswell.com/s/karaage0703/K7VPJG-2024-02-22-203253#p1)
 
 
-@[docswell](スライドのURL)
-# もしくは
-@[docswell](埋め込み用のURL)
+### codesandbox (やはり猫)
+@[codesandbox](https://codesandbox.io/embed/cat-chat-in-react-jefdn)
 
-例:
-@[docswell](https://www.docswell.com/s/ku-suke/LK7J5V-hello-docswell)
-@[docswell](https://www.docswell.com/s/ku-suke/LK7J5V-hello-docswell#p13)
-@[docswell](https://www.docswell.com/s/ku-suke/LK7J5V-hello-docswell/13)
-@[docswell](https://www.docswell.com/slide/LK7J5V/embed)
+### Stackblitz (もう一度猫)
+@[stackblitz](https://stackblitz.com/edit/angular-cat-breeds?embed=1&file=src%2Fapp%2Fapp.component.ts)
 
 
-@[jsfiddle](ページのURL)
+### figma (ミーム行ってみよう)
+@[figma](https://www.figma.com/proto/L9nFyfVDGrNpQETo9fm67Z/Figma-Meme-Templates--Community-?node-id=2-2&t=hSwyuZtUdeYGL4Yk-1)
 
 
-@[codesandbox](embed用のURL)
-
-
-@[stackblitz](embed用のURL)
-
-
-@[figma](ファイルまたはプロトタイプのURL)
-
-
-@[blueprintue](ページのURL)
-
-例：
+### blueprintue (特に面白いのが見つからないのでサンプル通り)
 @[blueprintue](https://blueprintue.com/render/0ovgynk-/)
 
 
 ```mermaid
 graph TB
-    A[Hard edge] -->|Link text| B(Round edge)
-    B --> C{Decision}
-    C -->|One| D[Result one]
-    C -->|Two| E[Result two]
+    A[起床] -->|コーヒー?| B(まだ眠い)
+    B --> C{寝る?}
+    C -->|Yes| D[遅刻]
+    C -->|No| E[仮病]
 ```
 
 
 ```mermaid
 graph LR
-   a --> b & c--> d
+   起床 --> 働く & 温泉--> 寝る
 ```
