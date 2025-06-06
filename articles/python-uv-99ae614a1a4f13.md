@@ -3,7 +3,8 @@ title: "UVをとりあえず触って取得する"
 emoji: "🐍"
 type: "tech"
 topics: ["python", "UV", "github"]
-published: false # trueを指定する
+published: true # trueを指定する
+published_at: 2025-06-08 12:00
 ---
 
 
