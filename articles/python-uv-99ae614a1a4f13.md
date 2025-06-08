@@ -1,5 +1,5 @@
 ---
-title: "UVをとりあえず触って取得する"
+title: "UV(高速Pythonパッケージマネージャー)をとりあえず触って取得する"
 emoji: "🐍"
 type: "tech"
 topics: ["python", "UV"]
