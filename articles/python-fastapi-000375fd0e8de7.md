@@ -76,8 +76,13 @@ https://github.com/testkun08080/FastAPI-QuickSetup
     cd <PROJECT_NAME>
     ./run.sh
     ```
-5. アプリケーションがローカルで起動したら、以下の URL をブラウザで開いてアクセスします:
+5. 起動したら、以下の URL をブラウザで開いてアクセスします:
    http://127.0.0.1:8000/
+
+   以下のように自分の設定したプロジェクトの名前が、きちんと表示されているばおk！
+   環境変数(.env)へプロジェクト名が書かれているはずです。
+   ![](/images/python-uv-99ae614a1a4f13/quickfastapi.png)
+
 
 
 ### Docker でアプリケーションをビルド・実行
