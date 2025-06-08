@@ -171,9 +171,7 @@ uv run --env-file=.env main.py
 
 ---
 
+## おわりに
 とりあえずUV触る人の手間が省ければ幸い
-
-
-Githubにも置いておいたので、こちらも参照頂けます。（書いてる内容はほぼ同じです）
-
+githubにも置いておいたので、こちらも参照頂けます。（書いてる内容はほぼ同じです）
 https://github.com/testkun08080/test-uv
