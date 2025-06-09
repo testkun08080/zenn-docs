@@ -98,9 +98,9 @@ https://github.com/testkun08080/ReactVite-On-GithubPage
 
 1. まずターミナルを開いて、プロジェクトネームを設定します
    ```
-   PROJECT_NAME=${1:-react-vite-app}
-   REPO_NAME=${2:-repo-name}
-   USER_NAME=${3:-user-name}
+   PROJECT_NAME=react-vite-app
+   REPO_NAME=repo-name
+   USER_NAME=user-name
    ```
 
 2. 自分の GitHubページのURL設定
@@ -137,18 +137,18 @@ https://github.com/testkun08080/ReactVite-On-GithubPage
 7. Tailwind の設定ファイルを変更
    ```
    cat <<EOL > tailwind.config.js
-    /** @type {import('tailwindcss').Config} */
-    export default {
-    content: [
-        "./index.html",
-        "./src/**/*.{js,jsx,ts,tsx,html}",
-    ],
-    theme: {
-        extend: {},
-    },
-    plugins: [],
-    };
-    EOL
+   /** @type {import('tailwindcss').Config} */
+   export default {
+   content: [
+      "./index.html",
+      "./src/**/*.{js,jsx,ts,tsx,html}",
+   ],
+   theme: {
+      extend: {},
+   },
+   plugins: [],
+   };
+   EOL
    ```
 
 8. Tailwind CSSをindex.css へ追加
@@ -178,7 +178,7 @@ https://github.com/testkun08080/ReactVite-On-GithubPage
     
 10. 起動!!!
     ```
-    npm run debv
+    npm run dev
     ```
 
 11. うまく起動すれば、localhost:5173/<PROJECT_NAME>へブラウザからアクセスしてみてください。
