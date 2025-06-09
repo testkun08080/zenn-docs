@@ -2,7 +2,7 @@
 title: "ReactViteをGitHubPageにデプロイするまでの流れ"
 emoji: "💻"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react, vite, github]
+topics: [react, vite, github, 入門]
 published: true # trueを指定する
 published_at: 2025-06-13 14:15
 ---
