@@ -3,8 +3,7 @@ title: "React-Vite(tailwindcss)をVercel上でデプロイする"
 emoji: "🏄‍♂️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [vercel, react, vite, tailwindcss]
-published: true
-published_at: 2025-06-16 08:00
+published: false
 ---
 
 
