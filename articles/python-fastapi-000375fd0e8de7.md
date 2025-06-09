@@ -29,7 +29,12 @@ published_at: 2025-06-11 11:11
 
 - Python 3.12
 - uv pip (インストールは[こちら](https://docs.astral.sh/uv/getting-started/installation/))
-  
+
+:::message
+uvについてはこちらも参考にしてみてください
+https://zenn.dev/testkun08080/articles/python-uv-99ae614a1a4f13
+:::
+
 Docker上で起動するには:
 - Dcoker (インストールは[こちら](https://github.com/docker/docker-install))
   
