@@ -48,6 +48,14 @@ GitとVercelの連携が必要です
 - uv (インストールは[こちら](https://docs.astral.sh/uv/getting-started/installation/))
 - Vercel CLI (インストールは[こちら](https://vercel.com/docs/cli#installing-vercel-cli/))
 
+#### 注意
+
+:::message alert
+バックエンドはapiをルートにしないと、vercel上でうまく起動できなかったため、apiとしています。
+※何か他の方法があると思いますが、ひとまずapiという名前にしておきます。
+requirements.txtも、ルートフォルダ以下に置かないとインストールがうまくいきませんでした。
+:::
+
 ## ローカル上でセットアップから起動
 
 1. **ローカルへクローンする**
@@ -77,6 +85,7 @@ GitとVercelの連携が必要です
     uv run pytest --html=report.html --self-contained-html --log-level=INFO
    ```
 
+
 ## Vercel CLI を使ってテストからデプロイ
 
 1. **ローカルでテスト**
@@ -93,6 +102,9 @@ GitとVercelの連携が必要です
     ```bash
     vercel --prod
    ```
+
+
+
 
 ## まとめ
 とにかく素早くデプロイできるサービスは非常にありがたい。
