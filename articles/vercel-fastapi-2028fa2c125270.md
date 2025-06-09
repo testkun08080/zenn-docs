@@ -13,7 +13,7 @@ FastAPIをvercel上までデプロイするまでの流れとサンプルデー�
 vercelこれから触る人や、FastAPI使って作ったけどデプロイ先をどこにしようかと試している人向けかと思います。
 vercelは無料でかなり使えますので、ぜひお試しください。（configの書き方さえわかればかなり簡単だと思います）
 
-#### サンプルページ
+#### 実際にデプロイした、サンプルページ
 https://fast-api-vercel-murex.vercel.app/
 
 ![サンプルページ](/images/vercel-fastapi-2028fa2c125270/ss-a.png =512x)
