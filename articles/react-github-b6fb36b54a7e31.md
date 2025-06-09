@@ -10,12 +10,18 @@ published: false
 # はじめに
 色々webで発信するにあたって無料で使えるGitHubPageを使用する手はないですよね。
 ということで、レポの作成からGitHubPageとしてデプロイするまでの流れをここに記録します。
+*React + Vite (+ Tailwind )を使ったページをデプロイします。*
 
-※React + Vite ( + Tailwind )を使ったページをデプロイします。
+### サンプルページ
+こちらで紹介する記事の最後には、おそらく以下のような画面が表示されます
+![サンプルページイメージ](/images/react-github-b6fb36b54a7e31/reactvite-github.png)
 
-##　記事をすっ飛ばしてレポだけ見せろ。という方はこちら。
+以下は事前に用意したサンプルページになります。
+https://testkun08080.github.io/ReactVite-On-GithubPage
+
+## レポだけみたい方はこちら。
 https://github.com/testkun08080/ReactVite-On-GithubPage
-*サンプルページは[こちら](https://testkun08080.github.io/ReactVite-On-GithubPage/)*
+
 
 ## 事前準備
 
@@ -24,37 +30,66 @@ https://github.com/testkun08080/ReactVite-On-GithubPage
 
 
 ## セットアップ
-基本的には、レポに入れておいた[setup-react-vite.sh](https://github.com/testkun08080/ReactVite-On-GithubPage/blob/main/setup-react-vite.sh)をダウンロードしてて、下記で説明する様にすれば、問題なくデプロイできるはずです。
 以下にシェルスクリプトを使った手順と、一つ一つステップを踏んで行う手順を記載します。
 
-[手順A(シェルスクリプト使用)](#%E8%A6%8B%E5%87%BA%E3%81%971%E3%81%A7%E3%81%99)
-[手順B(手動)](#%E8%A6%8B%E5%87%BA%E3%81%971%E3%81%A7%E3%81%99)
+- [A(シェルスクリプト使用)](#%E8%A6%8B%E5%87%BA%E3%81%971%E3%81%A7%E3%81%99)
+- [B(手動)](#%E8%A6%8B%E5%87%BA%E3%81%971%E3%81%A7%E3%81%99)
 
 ## A.シェルスクリプトを使う 🤖
 :::details 簡単ステップ🤖
 
-1. **ダウンロードシェルコマンドスクリプト:** 
-  React-ViteをベースとしたTailwindを適用するwebアプリケーションのテンプレートを作成します。
-  さらに、GitHubPageへのデプロイも兼ねた設定も行います。
+1. **ローカルへクローンまたはダウンロード**
    ```bash
-    setup-react-vite.sh
+   git clone https://github.com/testkun08080/ReactVite-On-GithubPage.git
+   cd ReactVite-On-GithubPage
    ```
-1. **パーミッション付与用のコマンド:** 
+   またはスクリプト`setup-react-vite.sh`のみダウンロード
    ```bash
-    chmod +x setup-react-vite.sh
+   curl -o setup-react-vite.sh https://raw.githubusercontent.com/testkun08080/ReactVite-On-GithubPage/main/setup-react-vite.sh
    ```
-2. **セットアップ用コマンドの実行(名前はお好みで)**
-    必ず、フロントエンドのフォルダ名と、作るレポジトリの名前、Githubのユーザー名を入れてください
-    ```bash
-   #./setup-react-vite.sh SampleProject ReactVite-On-GithubPage testkun08080
-    ./setup-react-vite.sh <PROJECT_NAME> <REPO_NAME> <USER_NAME>
+
+2. **ページを作成したいリポジトリにスクリプトをコピー**
+   ```bash
+   cp setup-react-vite.sh /path/to/YourGitRepo/
+   cd /path/to/YourGitRepo/
    ```
-3. **ローカルでテスト**
-    作成し終わったら、以下コマンドでローカル実行してみてください。
-    localhost:5173/<PROJECT_NAME>でアクセスできるはずです。
-    ```bash
-    npm run dev
+
+3. **パーミッション付与**
+   ```bash
+   chmod +x setup-react-vite.sh
    ```
+
+4. **セットアップ用コマンドの実行（名前は任意）**
+   フロントエンドをルート以下の別フォルダに作成したい場合
+   ```
+   /gitrepo
+   └─ frontendapp
+      └─ src
+   ```
+
+   ```bash
+   # ./setup-react-vite.sh SampleProject ReactVite-On-GithubPage testkun08080
+   ./setup-react-vite.sh <PROJECT_NAME> <REPO_NAME> <USER_NAME>
+   ```
+
+   もしくは新しいリポジトリのルートをフロントエンドと同じにしたい場合
+   ```
+   /frontendapp(gitrepo)
+   └─ src
+   ```
+   ```bash
+   # ./setup-react-vite.sh ReactVite-On-GithubPage ReactVite-On-GithubPage testkun08080
+   ./setup-react-vite.sh <PROJECT_NAME> <REPO_NAME> <USER_NAME>
+   ```
+
+5. **ローカルでテスト**
+   作成されたプロジェクトフォルダへ移動し、ローカルで実行してください。  
+   `localhost:5173` でアクセスできるはずです。
+   ```bash
+   cd <PROJECT_NAME>
+   npm run dev
+   ```
+
 :::
 
 ## B.手動で一つずつ踏みながらやってみる ✊
@@ -147,53 +182,65 @@ https://github.com/testkun08080/ReactVite-On-GithubPage
     ```
 
 11. うまく起動すれば、localhost:5173/<PROJECT_NAME>へブラウザからアクセスしてみてください。
-
 :::
 
-
-
-
 ## デプロイ
-1. **初期コミット:** 
-   ```bash
+一応２通りの方法を記載しています。
+既存のレポへの追加か、それとも新しく作るかの違いです。
+- [A(新しくリポジトリを作成)](#%E8%A6%8B%E5%87%BA%E3%81%971%E3%81%A7%E3%81%99)
+- [B(既存レポジトリへコミット)](#%E8%A6%8B%E5%87%BA%E3%81%971%E3%81%A7%E3%81%99)
+
+- ### 1(A). 新しくリポジトリを作成する場合
+
+  1. **初期コミット:** 
+    ```bash
     git init
     git add .
     git commit -m "Initial commit"
-2. **レポジトリ作成:** 
-   手動でレポジトリを作成、もしくは以下Github CLIを使用
-   ```bash
-   gh repo create --public --source=.
-   ```
-3. **プッシュ:** 
-   ```bash
-    git branch -M main 
+    ```
+  2. **リポジトリ作成:** 
+    ```bash
+    gh repo create --public --source=.
+    ```
+  3. **プッシュ:** 
+    ```bash
+    git branch -M main
     git push -u origin main
-   ```
-4. **Reactアプリケーションフォルダへ移動:** 
-   ```bash
-    cd <Your_App_Folder>
-   ```
-5. **GitHubPage用にビルドとデプロイ**
-    事前にbuildも行われて、distフォルダの中身のみがデプロイされずはずです
-    ```bash
-    npm run deploy
-   ```
-6. **GitHubPageの確認**
-   
-    Git Actionsでdeployが完了しているかどうかも確認してください。<br>
-   Settings > Pages > Visit Site で アプリケーションが正常に表示されるか確認してみてください。<br>
-   もしくは、以下のような　github page URL(適宜、ご自分のプロジェクトに合わせて)に行って最終確認をして下さい。
+    ```
 
-    ```bash
-    https://USER_NAME.github.io/REPO_NAME/
-   ```
-   
-   こちらは、このレポジトリのサンプルです。
-   (https://testkun08080.github.io/ReactVite-On-GithubPage/)
+- ### 1(B). 既存リポジトリへコミットしてプッシュする場合
+  1. **コミットとプッシュ:**
+      ```bash
+      git add .
+      git commit -m "add react vite app"
+      git push origin main
+      ```
+
+- ### 2. アプリをデプロイする
+  1. **React アプリケーションフォルダへ移動:** 
+      ```bash
+      cd <PROJECT_NAME>
+      ```
+  2. **GitHub Pages 用にビルドとデプロイ**
+      事前に build も行われ、`dist` フォルダの中身のみがデプロイされます。
+      ```bash
+      npm run deploy
+      ```
+  3. **GitHub Pages の確認**
+    GitHub Actions で deploy が完了しているか確認してください。  
+    **Settings > Pages > Visit Site** でアプリケーションが正常に表示されるか確認してください。  
+    または、以下のような GitHub Pages の URL（ご自身のプロジェクトに合わせて）で最終確認してください:
+      ```bash
+      https://USER_NAME.github.io/REPO_NAME/
+      ```
+
+      こちらはこのリポジトリのサンプルです。  
+      [https://testkun08080.github.io/ReactVite-On-GithubPage/](https://testkun08080.github.io/ReactVite-On-GithubPage/)
+
 
 
 ## まとめ
-会社員勤めでwebをただ使うだけだった僕にとって、これは良いチュートリアルとなりました。
+webをただ使うだけだった僕にとって、これは良いチュートリアルとなりました。
 また誰かの手助けになれば幸い。
 もし間違っているところなどあればコメントください。
 
