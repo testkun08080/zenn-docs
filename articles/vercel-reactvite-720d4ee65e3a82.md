@@ -3,7 +3,8 @@ title: "React-Vite(tailwindcss)をVercel上でデプロイする"
 emoji: "🏄‍♂️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [vercel, react, vite, tailwindcss]
-published: false
+published: true
+published_at: 2025-06-17 15:00
 ---
 
 
@@ -13,7 +14,6 @@ React-Viteをvercel上までデプロイするまでの流れとサンプルデ�
 
 **FastAPI on Vercel 記事**
 https://zenn.dev/testkun08080/articles/vercel-fastapi-2028fa2c125270
-
 
 vercelは無料でかなり使えますので、ぜひお試しください。（configの書き方さえわかればかなり簡単だと思います）
 
@@ -70,7 +70,7 @@ https://react-vite-vercel-ten.vercel.app/
     ```bash
     vercel dev
    ```
-   以下ターミナルのサンプル表示
+   以下のようなターミナルが表示されます
     ```bash
     YOURUSERNAME ReactVIte-vercel % vercel dev
     Vercel CLI 42.3.0
