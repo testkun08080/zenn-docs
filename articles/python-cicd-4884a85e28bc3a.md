@@ -1,5 +1,5 @@
 ---
-title: "Pyinstaller-CI/CD"
+title: "pyinstallerとGithub Actions(CI/CD)組んでみる"
 emoji: "✨"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [python, cicd, pyinstaller, githubactions, qt]
