@@ -2,14 +2,25 @@
 title: "USDのビルドから、Viewerの話"
 emoji: "🗂"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [python, cpp ,USD, build]
+topics: [python, cpp ,USD, viewer, 3d]
 published: false
 ---
 
-#　はじめに
+# はじめに
 USD(Universal Scene Description)を触ることがあったので、色々まとめたいと思います。
 会社でUSDを導入するにあたって、まずは手始めにスタンドアローンでプレビューするのに使ったり。または、モジュールとして組み込むで使える様になどを行っていました。
 最初は訳わかんなった（ビルド）ですけど、僕みたいなエンジニアではない人や、USDこれから触ろうとしている人に向けて記録として残しておきます。
+
+## この記事の流れ
+1. USDとは
+2. ローカルでビルドする(python)
+3. USD viewer単独で起動する
+4. USD Viewerをカスタムしてみる
+
+### 参考にしていたページ
+
+- 日本語での情報はかなり少なくて、こちらのページは非常に参考になりました。
+https://fereria.github.io/reincarnation_tech/usd/what_is_usd
 
 ## Universal Scene Description (USD) とは？
 ざっくり言えば、、、*複雑になった3Dアセットのやり取りを、USDが中間に入って円滑にしよう!*
@@ -35,4 +46,3 @@ USD(Universal Scene Description)を触ることがあったので、色々まと
 - macOS Sequoia 15.5
 - VsCode
 - zsh 5.9 (arm64-apple-darwin24.0)
-
