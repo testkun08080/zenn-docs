@@ -19,8 +19,11 @@ USD(Universal Scene Description)を触ることがあったので、色々まと
 
 ### 参考にしていたページ
 
-- 日本語での情報はかなり少なくて、こちらのページは非常に参考になりました。
+- 日本語での情報はかなり少なくて、こちらのページはUSDを理解するのに非常に参考になりました。
 https://fereria.github.io/reincarnation_tech/usd/what_is_usd
+
+- スタンドアローンのusdviewerをwidgetに埋め込んで使用するのに非常に助かりました。
+https://gist.github.com/BigRoy/5ac50208969fdc69a722d66874faf8a2#file-usdviewport_qt-py
 
 ## Universal Scene Description (USD) とは？
 ざっくり言えば、、、*複雑になった3Dアセットのやり取りを、USDが中間に入って円滑にしよう!*
