@@ -13,7 +13,7 @@ React-Viteをvercel上までデプロイするまでの流れとサンプルデ�
 前回、FastAPIをvercel上にデプロイを行いましたが、そちらも気になる方は以下をご覧ください。
 
 **FastAPI on Vercel 記事**
-https://zenn.dev/testkun08080/articles/vercel-fastapi-2028fa2c125270
+https://zenn.dev/testkun08080/articles/vercel-fastapi-591926e41c4a69
 
 vercelは無料でかなり使えますので、ぜひお試しください。（configの書き方さえわかればかなり簡単だと思います）
 

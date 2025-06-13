@@ -13,7 +13,7 @@ React-ViteとFastAPIをvercel上までデプロイするまでの流れとサン
 過去にReact-ViteとFastAPIをvercel上へデプロイする記事もあるので、単独で必要な方は以下をご覧いただければと思います。
 
 **FastAPI on Vercel 記事**
-https://zenn.dev/testkun08080/articles/vercel-fastapi-2028fa2c125270
+https://zenn.dev/testkun08080/articles/vercel-fastapi-591926e41c4a69
 
 **React-Vite(tailwindcss) on Vercel 記事**
 https://zenn.dev/testkun08080/articles/vercel-reactvite-720d4ee65e3a82
@@ -54,7 +54,7 @@ https://github.com/testkun08080/ReactVite-FastAPI-Vercel/blob/main/app/src/pages
 #### 実際にデプロイした、サンプルページ
 https://react-vite-fast-api-vercel.vercel.app/
 
-![サンプルページ](/images/vercel-reactvite2-1e6dca130d788a/ss-a.png =512x)
+![サンプルページ](/images/vercel-reactvite2-7ba1e4b93ff968/ss-a.png =512x)
 *サンプルページはこんな感じで見えるはずです*
 
 
