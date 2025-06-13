@@ -4,7 +4,7 @@ emoji: "🐒"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [vercel, react, vite, fastapi, python]
 published: true
-published_at: 2025-06-20 18:00
+published_at: 2025-06-20 20:00
 ---
 
 
