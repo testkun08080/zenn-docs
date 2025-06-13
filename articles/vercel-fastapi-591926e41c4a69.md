@@ -3,7 +3,8 @@ title: "FastAPIをVercel上でデプロイする"
 emoji: "🎃"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [vercel, FastAPI, python]
-published: false
+published: true
+published_at: 2025-06-16 11:00
 ---
 
 
