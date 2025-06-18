@@ -38,36 +38,59 @@ https://zenn.dev/testkun08080/articles/python-uv-99ae614a1a4f13
    cd projectname
    ```
 
-2. UVをjupyernote のインストール
+2. `UV`を使って、`jupyernote`のインストール
     ```zsh
     uv add --dev ipykernel
-    uv run ipython kernel install --user --env VIRTUAL_ENV $(pwd)/.venv --name=project
+    uv run ipython kernel install --user --env VIRTUAL_ENV $(pwd)/.venv --name=KERNEL_NAME
     ```
 
-    or サーバーとして起動したい場合は
+    もしくは、サーバーとしてローカル起動したい場合は
+
     ```
     uv run --with jupyter jupyter lab
     ```
 
 3. ipynbファイルを作成
-   Ctrl+Shift+PまたはCmd+Shift+P）、`Create: New Jupyter Notebook`と入力して実行します。
+   `>Create: New Jupyter Notebook`と入力して作成
     ![Create: New Jupyter Notebook](/images/jupyter-uv-ce1947d831c85e/ss-a.png)
 
 
-4. VS code 上でカーネルの選択
+4. VS Code 上でカーネルの選択
    ![カーネルの選択](/images/jupyter-uv-ce1947d831c85e/ss-b.png)
 
    次に、2の工程で作成したカーネルが表示されていれば、それを選択します。
-   ない場合は、
-   - 他のカーネルを選択
-   - Jupyert Kaenrl
-   - 自分の作成したカーネルを選択
 
+   ![カーネルの選択](/images/jupyter-uv-ce1947d831c85e/ss-d.png)
+
+   :::message
+   ない場合は、
+   他のカーネルを選択 > Jupyert Kaenrl > 自分の作成したカーネルを選択
+   ![カーネルの選択](/images/jupyter-uv-ce1947d831c85e/ss-e.png)
+   :::
 
 5. 起動
    あとは、noteに適当なスクリプトを入力して起動テストするだけです
-   ![起動テスト](/images/jupyter-uv-ce1947d831c85e/ss-c.png)
+   ![起動テスト](/images/jupyter-uv-ce1947d831c85e/ss-c.png =512x)
 
+   以下のスニペットでどのvenvが有効なのか確認できるはずです。
+   ```python
+   import sys
+
+   print(f"Python version: {sys.version}")
+   print(f"Virtual environment: {sys.prefix}")
+   ```
+   ![環境確認](/images/jupyter-uv-ce1947d831c85e/ss-f.png)
+
+### その他コマンド集
+
+- ローカルのjupyterカーネルチェック
+  ```zsh
+  uv run jupyter kernelspec list
+  ```
+- カーネルの削除
+  ```zsh
+   uv run jupyter kernelspec uninstall KERNEL_NAME
+  ```
 
 
 ## まとめ
