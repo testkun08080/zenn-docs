@@ -1,5 +1,5 @@
 ---
-title: "UVを使ってJupyternotebookをVS codeでセットアップする"
+title: "UVを使ってJupyter NotebookをVS codeでセットアップする"
 emoji: "📚"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [jupyternotebook, uv, python, vscode]
@@ -44,17 +44,29 @@ https://zenn.dev/testkun08080/articles/python-uv-99ae614a1a4f13
     uv run ipython kernel install --user --env VIRTUAL_ENV $(pwd)/.venv --name=project
     ```
 
-3. ipynbファイルを作成
-   ```
+    or サーバーとして起動したい場合は
+    ```
+    uv run --with jupyter jupyter lab
+    ```
 
-   ```
+3. ipynbファイルを作成
+   Ctrl+Shift+PまたはCmd+Shift+P）、`Create: New Jupyter Notebook`と入力して実行します。
+    ![Create: New Jupyter Notebook](/images/jupyter-uv-ce1947d831c85e/ss-a.png)
+
 
 4. VS code 上でカーネルの選択
-   ![Altテキスト-Zenn](https://storage.googleapis.com/zenn-user-upload/avatar/9965dabc76.jpeg =150x)
+   ![カーネルの選択](/images/jupyter-uv-ce1947d831c85e/ss-b.png)
+
+   次に、2の工程で作成したカーネルが表示されていれば、それを選択します。
+   ない場合は、
+   - 他のカーネルを選択
+   - Jupyert Kaenrl
+   - 自分の作成したカーネルを選択
 
 
 5. 起動
-    ![Altテキスト-Zenn](https://storage.googleapis.com/zenn-user-upload/avatar/9965dabc76.jpeg =150x)
+   あとは、noteに適当なスクリプトを入力して起動テストするだけです
+   ![起動テスト](/images/jupyter-uv-ce1947d831c85e/ss-c.png)
 
 
 
