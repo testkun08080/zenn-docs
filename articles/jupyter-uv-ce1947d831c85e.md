@@ -1,5 +1,5 @@
 ---
-title: "UVを使ってJupyter NotebookをVS codeでセットアップする"
+title: "UVを使ってJupyter NotebookをVSCodeでセットアップしてみよう!"
 emoji: "📚"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [jupyternotebook, uv, python, vscode]
@@ -92,9 +92,10 @@ https://zenn.dev/testkun08080/articles/python-uv-99ae614a1a4f13
    uv run jupyter kernelspec uninstall KERNEL_NAME
   ```
 
+## 参考文献
+https://docs.astral.sh/uv/guides/integration/jupyter/#creating-a-kernel
+
 
 ## まとめ
-一秒でも誰かの時間が節約できれば幸いです
-何かミスなどがあれば、コメントください〜
-
-では！
+一秒でも誰かの時間が節約できれば幸いです!
+👍いただけるとモチベ上がります！
