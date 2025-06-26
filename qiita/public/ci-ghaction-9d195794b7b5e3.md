@@ -1,17 +1,17 @@
 ---
 title: ZennからQiitaとTwitterへの投稿を自動化してみる
-published_at: '2025-06-28 15:00'
-private: false
 tags:
-  - github
-  - twitter
-  - zenn
-  - qiita
+  - Qiita
+  - GitHub
+  - Twitter
   - actions
-updated_at: '2025-06-26T15:07:51.930Z'
-id: null
+  - Zenn
+private: false
+updated_at: '2025-06-27T01:14:27+09:00'
+id: 54e74010a6b3c6692698
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 # はじめに
