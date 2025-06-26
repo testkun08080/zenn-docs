@@ -17,7 +17,11 @@ slide: false
 # はじめに
 Zennでは一ヶ月前ぐらいから描き始めたのですが、qiitaと自分のtwitterにも連動させて投稿しようかなと思っていたところです。
 やはり先人の方たちはもう同じようなことを考えられて、便利なものを作成されておりました。
-ここでは引用祭りにはなってしまいますが、`rss-to-twitter` と `zenn-qiita-sync` を紹介させていただければと思います。
+ここでは引用祭りにはなってしまいますが、先人たちが作られた以下二つのgtihub actionを使わせていただきながら紹介したいと思います。
+
+https://github.com/azu/rss-to-twitter
+
+https://github.com/C-Naoki/zenn-qiita-sync
 
 ## 対象読者
 - TwitterにもZennの投稿を連動させたい方
@@ -28,12 +32,20 @@ Zennでは一ヶ月前ぐらいから描き始めたのですが、qiitaと自�
 - Github Actionの作成と配布の参考になる
 
 ## RSSと利用したZennとTwitterの連携投稿
-以下に既に、わかりやすく解説されていますので是非ご参照ください。
+こちらも非常わかりやすく説明されているため、以下リンクを参照していただきながらセットアップしてみてください。
 https://github.com/C-Naoki/zenn-qiita-sync
 
 ## ZennとQiitaの連携投稿
 以下に既に、わかりやすく解説されていますので是非ご参照ください。
 https://github.com/C-Naoki/zenn-qiita-sync
+
+## 自分で一からアクションを作成して配布したい場合
+上記二つで自分がやりたいことは出来たのですが、
+Mediumにも投稿を考えている為、以下のテンプレートが自分用にカスタムする際に参考になりました。
+https://github.com/actions/typescript-action
+
+またこちらも非常によくまとめられていて感謝です！
+https://zenn.dev/farstep/books/learn-github-actions
 
 
 ## 参考文献
