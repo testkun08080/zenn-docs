@@ -2,7 +2,7 @@ name: rss-to-twitter
 on:
   schedule:
     - cron: "*/15 * * * *"
-  workflow_dispatch:
+  #workflow_dispatch:
 jobs:
   twitter:
     runs-on: ubuntu-latest
