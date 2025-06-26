@@ -3,7 +3,7 @@ title: "UVを使ってJupyter NotebookをVSCodeでセットアップしてみよ
 emoji: "📚"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [jupyternotebook, uv, python, vscode]
-published: false
+published: true
 ---
 
 # はじめに
@@ -17,7 +17,6 @@ published: false
 
 
 ## 前提条件
-
 システムに以下がインストールされていることを確認してください:
 
 - Python
