@@ -2,7 +2,7 @@
 title: "ZennからQiitaとTwitterへの投稿を自動化してみる"
 emoji: "😊"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [github, twitter, zenn, qiita, actions]
+topics: [rss, twitter, zenn, qiita, githubactions]
 published: true
 published_at: 2025-06-28 15:00 # 未来の日時を指定する
 ---
@@ -53,4 +53,4 @@ https://zenn.dev/ot07/articles/zenn-qiita-article-centralized
 ここまでお読みいただきありがとうございます。
 色々と調べる中で、便利なものを作っていただいている方には感謝しかありません。
 この場でもう一度お礼を申し上げます。
-また、👍と思った方は上記参考文献の方々へスターや👍をよろしくお願いいたします!
+また、👍と思った方は上記の方々へスターや👍をよろしくお願いいたします!
