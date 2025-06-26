@@ -19,5 +19,8 @@
   "description": "",
   "dependencies": {
     "zenn-cli": "^0.1.161"
+  },
+  "devDependencies": {
+    "@qiita/qiita-cli": "^1.6.2"
   }
 }
