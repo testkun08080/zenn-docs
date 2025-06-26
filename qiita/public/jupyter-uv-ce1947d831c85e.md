@@ -1,15 +1,16 @@
 ---
 title: UVを使ってJupyter NotebookをVSCodeでセットアップしてみよう!
-private: false
 tags:
-  - jupyternotebook
-  - uv
-  - python
-  - vscode
-updated_at: '2025-06-26T16:57:19.966Z'
-id: null
+  - Python
+  - UV
+  - VSCode
+  - JupyterNotebook
+private: false
+updated_at: '2025-06-27T01:59:55+09:00'
+id: 4290b1d50ed8605934b4
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 # はじめに
