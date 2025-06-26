@@ -17,6 +17,7 @@ Zennでは一ヶ月前ぐらいから描き始めたのですが、qiitaと自�
 
 ## 記事を読むメリット
 - 一つのレポジトリからTwitterとQiitaへ投稿可能
+- Github Actionの作成と配布の参考になる
 
 ## RSSと利用したZennとTwitterの連携投稿
 https://github.com/C-Naoki/zenn-qiita-sync
