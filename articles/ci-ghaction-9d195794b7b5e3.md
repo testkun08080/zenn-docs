@@ -21,9 +21,11 @@ Zennでは一ヶ月前ぐらいから描き始めたのですが、qiitaと自�
 - Github Actionの作成と配布の参考になる
 
 ## RSSと利用したZennとTwitterの連携投稿
+以下に既に、わかりやすく解説されていますので是非ご参照ください。
 https://github.com/C-Naoki/zenn-qiita-sync
 
 ## ZennとQiitaの連携投稿
+以下に既に、わかりやすく解説されていますので是非ご参照ください。
 https://github.com/C-Naoki/zenn-qiita-sync
 
 
