@@ -3,7 +3,8 @@ title: "ZennからQiitaとTwitterへの投稿を自動化してみる"
 emoji: "😊"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [github, twitter, zenn, qiita, actions]
-published: false
+published: true
+published_at: 2025-06-28 15:00 # 未来の日時を指定する
 ---
 
 # はじめに
