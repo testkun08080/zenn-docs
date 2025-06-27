@@ -1,14 +1,14 @@
 ---
 title: 一人でゲームデバイスが多分簡単に作れる時代
-published_at: '2025-06-30 12:00'
-private: false
 tags:
   - game
-  - device
-updated_at: '2025-06-27T10:55:44.228Z'
-id: null
+  - Device
+private: false
+updated_at: '2025-06-27T19:55:53+09:00'
+id: 300f2f989fab40cf94fb
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 # はじめに
