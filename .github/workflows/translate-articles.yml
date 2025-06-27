@@ -1,4 +1,8 @@
 name: Translate Markdown with Groq
+
+env:
+  LANGUAGES: ${{ secrets.TRANSLATION_LANGUAGES || 'ja' }}
+
 on:
   push:
     paths:
@@ -22,8 +26,6 @@ jobs:
        # 各ファイルを指定された言語に翻訳
       - name: Translate files to multiple languages
         run: |
-          LANGUAGES=${{ secrets.TRANSLATION_LANGUAGES }}
-
           while IFS= read -r file; do
             echo "Processing file: $file"
             base_name=$(basename "$file" .md)
