@@ -1,18 +1,16 @@
 ---
-title: Test ReactViteをGitHubPageにデプロイするまでの流れ
-tags:
-  - GitHub
-  - 入門
-  - React
-  - vite
+title: ReactViteをGitHubPageにデプロイするまでの流れ
 private: false
+tags:
+  - react
+  - vite
+  - github
+  - 入門
 updated_at: '2025-06-27T19:13:15+09:00'
 id: 1ae223e3c060ec4a7ff8
 organization_url_name: null
 slide: false
-ignorePublish: false
 ---
-
 
 # はじめに
 色々webで発信するにあたって無料で使えるGitHubPageを使用する手はないですよね。
@@ -21,7 +19,7 @@ ignorePublish: false
 
 ### サンプルページ
 こちらで紹介する記事の最後には、おそらく以下のような画面が表示されます
-![サンプルページイメージ](/images/react-github-b6fb36b54a7e31/reactvite-github.png)
+![サンプルページイメージ](https://raw.githubusercontent.com/testkun08080/zenn-docs/main/images/react-github-b6fb36b54a7e31/reactvite-github.png)
 
 以下は事前に用意したサンプルページになります。
 https://testkun08080.github.io/ReactVite-On-GithubPage
