@@ -6,7 +6,7 @@ env:
 on:
   push:
     paths:
-      - 'articles/**/*.md' # 翻訳対象のMarkdownファイル
+      - 'articles/**/*.md'
   workflow_dispatch:
 
 jobs:
@@ -14,20 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      # 変更されたMarkdownファイルを取得
+
       - name: Get changed markdown files
         id: files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^articles/.*\.md$" > $GITHUB_WORKSPACE/changed_files.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^articles/.*\.md$" > changed_files.txt
           echo "📋 Changed markdown files:"
-          cat $GITHUB_WORKSPACE/changed_files.txt
-        continue-on-error: true
+          cat changed_files.txt
         shell: bash
-        
-       # 各ファイルを指定された言語に翻訳
+
       - name: Translate files to multiple languages
         run: |
+          IFS=',' read -r -a LANGUAGES <<< "$LANGUAGES"
           while IFS= read -r file; do
             echo "Processing file: $file"
             base_name=$(basename "$file" .md)
@@ -35,7 +33,6 @@ jobs:
               echo "Translating $file to $lang..."
               translated_file="articles/${base_name}_${lang}.md"
 
-              # Groqを使用して翻訳
               translated_content=$(gh api -X POST repos/${{ github.repository }}/actions/workflows/<workflow_id>/dispatches \
                 -f ref=${{ github.ref }} \
                 -f inputs.config="$(cat <<EOF
@@ -44,29 +41,30 @@ jobs:
                   "provider_options": {
                     "api_key": "${{ secrets.GROQ_API_KEY }}"
                   },
-                  "system": "You are a professional Markdown translator specializing in technical documents. Translate the following content to ${lang}:",
+                  "system": "Translate the following content to ${lang}:",
                   "prompt": "$(cat $file)",
                   "model": "compound-beta"
                 }
                 EOF
                 )")
 
-              # 翻訳結果を保存
               echo "$translated_content" > "$translated_file"
               echo "Saved translated file: $translated_file"
             done
-          done < $GITHUB_WORKSPACE/changed_files.txt
+          done < changed_files.txt
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
-      # 翻訳結果をコミット＆プッシュ
       - name: Commit and push changes
         run: |
-          $GITHUB_WORKSPACE/changed_files.txt
+          rm changed_files.txt
           git config --local user.name ${{ github.actor }}
           git config --local user.email ${{ github.actor }}@users.noreply.github.com
-          git add articles/*_*.md
-          git commit -m "Add translated Markdown files"
-          git push
+          if git ls-files --error-unmatch articles/*_*.md; then
+            git add articles/*_*.md
+            git commit -m "Add translated Markdown files"
+            git push
+          else
+            echo "No files to commit."
+          fi
         shell: bash
-        if: steps.files.outcome == 'success'
