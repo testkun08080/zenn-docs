@@ -18,9 +18,9 @@ jobs:
       - name: Get changed markdown files
         id: files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^articles/.*\.md$" > changed_files.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^articles/.*\.md$" > $GITHUB_WORKSPACE/changed_files.txt
           echo "📋 Changed markdown files:"
-          cat changed_files.txt
+          cat $GITHUB_WORKSPACE/changed_files.txt
         shell: bash
 
       - name: Translate files to multiple languages
@@ -51,13 +51,13 @@ jobs:
               echo "$translated_content" > "$translated_file"
               echo "Saved translated file: $translated_file"
             done
-          done < changed_files.txt
+          done < $GITHUB_WORKSPACE/changed_files.txt
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
       - name: Commit and push changes
         run: |
-          rm changed_files.txt
+          rm $GITHUB_WORKSPACE/changed_files.txt
           git config --local user.name ${{ github.actor }}
           git config --local user.email ${{ github.actor }}@users.noreply.github.com
           if git ls-files --error-unmatch articles/*_*.md; then
