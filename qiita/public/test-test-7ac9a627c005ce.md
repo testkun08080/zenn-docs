@@ -1,16 +1,16 @@
 ---
 title: Test ReactViteをGitHubPageにデプロイするまでの流れ
-published_at: '2025-06-13 14:15'
-private: false
 tags:
-  - react
-  - vite
-  - github
+  - GitHub
   - 入門
-updated_at: '2025-06-27T10:13:06.555Z'
-id: null
+  - React
+  - vite
+private: false
+updated_at: '2025-06-27T19:13:15+09:00'
+id: 1ae223e3c060ec4a7ff8
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 
