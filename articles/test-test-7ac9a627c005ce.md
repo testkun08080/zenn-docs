@@ -1,12 +1,10 @@
 ---
-title: "Test ReactViteをGitHubPageにデプロイするまでの流れ"
+title: "ReactViteをGitHubPageにデプロイするまでの流れ"
 emoji: "💻"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react, vite, github, 入門]
 published: true # trueを指定する
-published_at: 2025-06-13 14:15
 ---
-
 
 # はじめに
 色々webで発信するにあたって無料で使えるGitHubPageを使用する手はないですよね。
