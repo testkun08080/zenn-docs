@@ -15,6 +15,9 @@ USD(Universal Scene Description)Viewerを触ることがあったので、色々
 とりあえず、サンプルのデータ見てみたいという方は、以下レポをご覧ください。
 https://github.com/testkun08080/custom-embed-usdviewer
 
+#### 作成される最終イメージ
+![イメージ](https://raw.githubusercontent.com/testkun08080/custom-embed-usdviewer/refs/heads/main/docs/sample.gif)
+
 ## この記事の流れ
 1. Universal Scene Description (USD) とは？
 2. ローカルでビルドする(python)
@@ -63,6 +66,16 @@ https://github.com/testkun08080/custom-embed-usdviewer
   uv add PyOpenGL PySide6 numpy
   uv run OpenUSD/build_scripts/build_usd.py BuildUSD
   ```
+  ビルドが正しく終われば以下のようなログが見れるはずです。
+  ```zdh
+  Success! To use USD, please ensure that you have:
+
+    The following in your PYTHONPATH environment variable:
+    /Users/Username/path/custom-embed-usdviewer/BuildUSD/lib/python
+
+    The following in your PATH environment variable:
+    /Users/Username/path/custom-embed-usdviewer/BuildUSD/bin
+  ```
 
 - 環境パスの設定
   
@@ -80,7 +93,7 @@ https://github.com/testkun08080/custom-embed-usdviewer
 
 
 ## USD viewer単独で起動する
-以下コマンドで、USDViewerが立ち上がるはずです。
+以下コマンドで、USDViewerが立ち上がるはずです。(初回は起動に時間がかかるはずです)
 - uvでusdviewを直接起動
   ```zsh
   uv run --env-file=.env usdview OpenUSD/extras/usd/tutorials/convertingLayerFormats/Sphere.usda
@@ -116,23 +129,17 @@ Python経由で起動する場合
     uv run open_usd_viewer.py
     ```
 
-- コマンドで起動
-    ```zsh
-    # Set PATH
-    export PATH=BuildUSD/bin:$PATH
-
-    # Run usdviewer
-    uv run --env-file=.env usdview OpenUSD/extras/usd/tutorials/convertingLayerFormats/Sphere.usda
-    ```
-
 ## USD Viewerをカスタムしてみる
 
 ### usdviewerを埋め込んだwidgetを作成
 まずは、usdviewerを埋め込んだwidgetを作成します。
 コードを見ていただければわかると思いますが、`from pxr.Usdviewq.stageView import StageView`が重要なところかと思います。
 あとラッパー関数を作っておいて、後に記述するUI側で操作する感じです。
+**以下コマンドをコピーしてファイルを作成できます**
 
-```python embed_usd_widget.py
+:::details embed_usd_widget.py
+```python
+cat > embed_usd_widget.py <<EOL
 """A simple application to embed a USD viewer using PySide6."""
 
 import os
@@ -241,14 +248,32 @@ if __name__ == "__main__":
     window.show()
 
     sys.exit(app.exec_())
-
+EOL
 ```
+:::
 
 ### 作ったwidgetを使ってカスタムviewerを作る
 カスタムといっても、ドッキング可能なwidgetから、viewerのUIをラップー関数を使って操作する簡単なwindowを作ります。
 構造としては、大まかなUIファイルで作成しておいて、埋め込みwidgetを使っているだけです。
 
-```python app.py
+#### UIファイル
+以下イメージのようにQTCreatorなどでファイルを作成します。
+![イメージ](/images/python-usdview-a51e8bdf7222cf/ss-a.png)
+uiファイルの詳細はgit内のファイルをご確認ください。
+https://github.com/testkun08080/custom-embed-usdviewer/blob/main/UI/usdViewerController.ui
+
+**以下コマンドをコピーしてUIファイルをダウンロードしできます**
+```zsh
+mkdir -p UI && curl -L -o UI/usdViewerController.ui https://raw.githubusercontent.com/testkun08080/custom-embed-usdviewer/main/UI/usdViewerController.ui
+```
+
+#### UIファイルを使って埋め込み用usdviewer widgetを操作する
+
+**以下コマンドをコピーしてファイルを作成できます**
+
+:::details app.py
+```python
+cat > app.py <<EOL
 """Module providing a USD viewer application."""
 
 import sys
@@ -365,8 +390,12 @@ if __name__ == "__main__":
     # You might need to call this after shop up the window
     viewer_controller.setup_aov_ui()
     sys.exit(app.exec_())
-
+EOL
 ```
+:::
+
+うまくいけば、以下のようなUIが起動するはずです。
+![最終形態](https://raw.githubusercontent.com/testkun08080/custom-embed-usdviewer/refs/heads/main/docs/sample_image.png)
 
 
 ## 感想
