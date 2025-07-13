@@ -1,14 +1,14 @@
 ---
-title: "USDをビルドして、Viewerをカスタムしてみる"
+title: "USD(Universal Scene Description)をローカルビルドして、Viewerをカスタムしてみる"
 emoji: "🗂"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [python, cpp ,USD, viewer, 3d]
-published: false
+published: true
 ---
 
 # はじめに
 USD(Universal Scene Description)Viewerを触ることがあったので、色々まとめたいと思います。
-会社でUSD Viewerを導入するにあたって、まずは手始めにスタンドアローンでプレビューするのに使ったり。または、モジュールとして組み込むで使える様になどを行っていました。
+会社でUSD Viewerを導入するにあたって、まずは手始めにスタンドアローンでプレビューするのに使ったり。または、モジュールとして組み込みで使える様になどを行っていました。
 最初は訳わかんなった（ビルド）ですけど、僕みたいなエンジニアではない人や、USDこれから触ろうとしている人に向けて記録として残しておきます。
 ゴールとしては、ビルドしたものをカスタムしてViewerをコントロールするところまでとします。
 
