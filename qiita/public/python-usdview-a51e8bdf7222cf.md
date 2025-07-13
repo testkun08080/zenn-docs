@@ -1,16 +1,17 @@
 ---
 title: USD(Universal Scene Description)をローカルビルドして、Viewerをカスタムしてみる
-private: false
 tags:
-  - python
-  - cpp
-  - USD
+  - Python
+  - C++
+  - 3D
   - viewer
-  - 3d
-updated_at: '2025-07-13T08:50:41.502Z'
-id: null
+  - USD
+private: false
+updated_at: '2025-07-13T17:50:50+09:00'
+id: 441073358a38adce9a13
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 # はじめに
