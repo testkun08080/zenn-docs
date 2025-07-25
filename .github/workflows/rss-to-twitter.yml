@@ -16,7 +16,7 @@ jobs:
         with:
           # RSS feed URL
           RSS_URL: "https://zenn.dev/testkun08080/feed"
-          TWEET_TEMPLATE: 'New Post: "%title%" %url%'
+          TWEET_TEMPLATE: '"%title%" %url%'
           UPDATE_WITHIN_MINUTES: ${{ inputs.updateMinutes }}
           TWITTER_APIKEY: ${{ secrets.TWITTER_APIKEY }}
           TWITTER_APIKEY_SECRET: ${{ secrets.TWITTER_APIKEY_SECRET }}
