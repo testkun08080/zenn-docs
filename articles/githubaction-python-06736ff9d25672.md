@@ -1,5 +1,5 @@
 ---
-title: "官報とは。python/UV/Docker/GitHubActionsで通知システムを構築してみたが。"
+title: "官報とは。python/UV/Docker/GitHubActionsで通知システムを勢いだけで構築してみたが。"
 emoji: "📖"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [python, githubactions ,rss, uv, docker]
@@ -456,7 +456,7 @@ https://github.com/noweh/post-tweet-v2-action
 
 ## まとめ、感想
 ここまでご覧頂き有難うございました！
-とりあえず、これで非公式官報通知の仕組みは作れたはずです。。
+とりあえず、熱が冷めないうちに作ってみたものの。。これで非公式官報通知の仕組みは作れたはずです。。
 体感的にAIエージェントガンガン使ってコードは適当に人間がわかる範囲に直すぐらいで作り終えました。（多分実務でなら3日程度...修正含めて）
 あとは、既存のものを流用。
 謎のとりあえずやってみよう感で作りましたが、どこかで役に立つことを願います。
