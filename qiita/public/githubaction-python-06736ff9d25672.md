@@ -1,16 +1,17 @@
 ---
 title: 官報とは。python/UV/Docker/GitHubActionsで通知システムを勢いだけで構築してみたが。
-private: false
 tags:
-  - python
-  - githubactions
-  - rss
-  - uv
-  - docker
-updated_at: '2025-07-28T10:42:20.245Z'
-id: null
+  - Python
+  - RSS
+  - UV
+  - Docker
+  - GitHubActions
+private: false
+updated_at: '2025-07-28T19:42:28+09:00'
+id: 5bd3049ddc4eb6ac0b9d
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 ![官報通知ぼっと](https://github.com/testkun08080/kanpo-rss/blob/main/temp/%E5%AE%98%E5%A0%B1bot.png?raw=true)
