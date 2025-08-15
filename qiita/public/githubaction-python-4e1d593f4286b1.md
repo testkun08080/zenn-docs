@@ -1,14 +1,15 @@
 ---
 title: 官報自動通知X Twitter(X)の改修。python/GitHubActionsで
-private: false
 tags:
-  - python
-  - githubactions
-  - rss
-updated_at: '2025-08-15T08:49:42.430Z'
-id: null
+  - Python
+  - RSS
+  - GitHubActions
+private: false
+updated_at: '2025-08-15T17:49:52+09:00'
+id: 18122edfdecf20ec5437
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 ![官報通知ぼっと](https://raw.githubusercontent.com/testkun08080/zenn-docs/main/images/githubaction-python-4e1d593f4286b1/a.jpg)
