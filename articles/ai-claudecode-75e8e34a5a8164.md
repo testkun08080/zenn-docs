@@ -1,9 +1,9 @@
 ---
-title: "Claude Codeの拡張（SuperClaude）使って、SlackからClaude Codeを動かすレポを説明をさせてみる
-emoji: "🤖"
-type: "tech" # tech: 技術記事 / idea: アイデア
+title: "Claude Codeの拡張（SuperClaude）使って、SlackからClaude Codeを動かすレポを説明をさせてみる"
+emoji : "🤖"
+type: "tech"
 topics: [claudecode, ai, slack, typescript, framework]
-published: false
+published: true
 ---
 
 # はじめに
@@ -30,8 +30,6 @@ https://github.com/SuperClaude-Org/SuperClaude_Framework
 
 #### 結果
 ```zsh
-このプロジェクトを説明してほしい
-
 ⏺ このプロジェクトは、Slack内で Claude Code の AI
   コーディングアシスタント機能を提供する TypeScript ベースの Slack ボットです。
 
@@ -372,12 +370,13 @@ https://github.com/SuperClaude-Org/SuperClaude_Framework
 
 などなど。
 Claude Codeが時間を奪います。
+ただし、エラーやうまくいかないところがあるので、その内ローカルで修正してPRを出そうかと思いってます。
 
 ## まとめ
 体感時間としては、通常の方が早いけど、細かさで言うとSuper Claudeの方がまあ軍配が上がる。
 是非触っていない方は触って頂きたい。
 
-**体調崩さないようにAIツールとは向き合っていきたい**
+`体調崩さないようにAIツールとは向き合っていきたい`
 
 
 ### 関連リンク
