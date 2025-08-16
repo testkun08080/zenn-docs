@@ -1,16 +1,17 @@
 ---
 title: Claude Codeの拡張（SuperClaude）使って、SlackからClaude Codeを動かすレポを説明をさせてみる
-private: false
 tags:
-  - claudecode
-  - ai
-  - slack
-  - typescript
+  - TypeScript
   - framework
-updated_at: '2025-08-16T09:38:08.234Z'
-id: null
+  - AI
+  - Slack
+  - ClaudeCode
+private: false
+updated_at: '2025-08-16T18:38:17+09:00'
+id: 0e31e5a41ba8ef2563bf
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 # はじめに
