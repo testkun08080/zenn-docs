@@ -21,10 +21,19 @@ https://zenn.dev/testkun08080/articles/githubaction-python-06736ff9d25672
 https://zenn.dev/testkun08080/articles/vercel-fastapi-591926e41c4a69
 
 ### 何をホスティングしたか
-https://github.com/testkun08080/kanpo-viewer/blob/main/api/app/api/pdf.py
 
-抜粋して書くと。
-基本的なPDF用の処理クラスを定義
+#### レポはこちら（詳しく中身を見たい方はこちら）
+https://github.com/testkun08080/kanpo-viewer
+
+
+
+やりたい内容は、pdfのリンクとファイル名を取得してダウンロードして渡す。
+はい、ただそれだけです。
+
+なので、メチャクチャシンプルです。
+以下に抜粋して部分を記載します。
+
+### 基本的なPDF用の処理クラスを定義
 （Claudeに簡単な設計を渡してチョちょっと直したぐらいのコードですが、おそらく大丈夫なはず）
 
 ```python
@@ -221,9 +230,6 @@ async def health_check():
 
 ```
 
-
-#### レポはこちら
-https://github.com/testkun08080/kanpo-viewer
 
 
 
