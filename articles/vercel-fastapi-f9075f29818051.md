@@ -223,14 +223,7 @@ async def download_pdf(
         )
 
 
-@router.get("/health")
-async def health_check():
-    """ヘルスチェックエンドポイント"""
-    return {"status": "healthy", "service": "pdf_download"}
-
 ```
-
-
 
 
 ### 設定で引っかかったところ
