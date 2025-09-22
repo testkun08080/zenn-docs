@@ -3,7 +3,8 @@ title: "FastAPIをVercelへまた置いてみた。官報ビューワーアッ�
 emoji: "🎉"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [python, fastapi, vercel, pdf]
-published: false
+published: true # trueを指定する
+published_at: 2025-09-24 12:00
 ---
 
 # はじめに
@@ -20,12 +21,13 @@ PDFもどうせならダウンロードしたいよなぁー。と思ってバ�
 https://zenn.dev/testkun08080/articles/githubaction-python-06736ff9d25672
 https://zenn.dev/testkun08080/articles/vercel-fastapi-591926e41c4a69
 
-### 何をホスティングしたか
+#### 官報ビューワーってなに？という方はこちら
+https://kanpo-viewer.com/
+
+### 何をしたいのか。
 
 #### レポはこちら（詳しく中身を見たい方はこちら）
 https://github.com/testkun08080/kanpo-viewer
-
-
 
 やりたい内容は、pdfのリンクとファイル名を取得してダウンロードして渡す。
 はい、ただそれだけです。
