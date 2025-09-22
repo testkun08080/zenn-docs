@@ -1,16 +1,16 @@
 ---
 title: FastAPIをVercelへまた置いてみた。官報ビューワーアップデート
-published_at: '2025-09-24 12:00'
-private: false
 tags:
-  - python
-  - fastapi
-  - vercel
-  - pdf
-updated_at: '2025-09-22T17:11:20.331Z'
-id: null
+  - Python
+  - PDF
+  - FastAPI
+  - Vercel
+private: false
+updated_at: '2025-09-23T02:11:28+09:00'
+id: bfa289de6346e8e74666
 organization_url_name: null
 slide: false
+ignorePublish: false
 ---
 
 # はじめに
