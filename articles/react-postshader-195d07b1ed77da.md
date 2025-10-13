@@ -1,394 +1,652 @@
 ---
-title: "Reactでポストプロセスを触ってカスタムシェーダーの作り方をざっくり理解してみる"
+title: " ポストエフェクト祭り。React/ポストプロセスを触ってカスタムシェーダーの作り方をざっくり理解してみる(ビルトインとカスタム)"
 emoji: "📘"
-type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react, postprocess, shader ]
+type: "tech"
+topics: [react, threejs, shader, postprocessing, webgl]
 published: false
+published_at: 2025-10-14 12:30
 ---
-
-
 
 # はじめに
 もう九月か。。。
 独り立ちして約１年ぐらい経とうとしている中、ポートフォリオページがまだ`Under Maintenance`なので、
 重い腰を上げて、ポートフォリオページを作成することにしました。
-そこで、大好きなシェーダーをウェブにはもりもり使おうと思い立ったのが、きっかけです。
+そこで、大好きなシェーダーをポートフォリオにももりもり使おうと思い立ったのが、きっかけです。
 （ゲームだとそうは行かないので）
 
-さて、ここでは以下モジュールですでに用意されている一般的？なポストを実装するまでの工程と、
-カスタムシェーダーを使ってワールドノーマルを表示数だけの工程を記します。
-なぜに、ワールドノーマルかというと、ディファードレンダリングで慣れている僕は、やっぱり使いやすいワールドノーマルが欲しくなるんです。
-それと、やっぱ3D空間でベクトルとの連携を考えると、まぁまずカスタムシェーダーを作る最初の一歩としては無難なのかなと思ったのです。
+さて、この記事では以下モジュールで用意されている一般的なポストエフェクトの実装と、カスタムシェーダーを使ってワールドノーマルを表示するまでの工程を記します。
+それから一般的なカスタムシェーダーをClaudeに手伝っておもらったので、載せておきます。
 
-## `SuperClaude_Framework`とは
-Claude Codeを “拡張”して開発作業を進めやすくするためのフレームワークです。
-ここでなんだかんだ言うよりインストールして頂いて、触っていただくのが早いです。
+- **[@react-three/drei](https://github.com/pmndrs/drei)**
+- **[@react-three/postprocessing](https://docs.pmnd.rs/react-postprocessing)**
+- **[postprocessing](https://github.com/pmndrs/postprocessing)**
 
-以下レポです。
 
-https://github.com/SuperClaude-Org/SuperClaude_Framework
+## レポ
+https://github.com/testkun08080/react-postprocess-tester
 
-## `claude-code-slack-bot`をClaude Codeに紹介してもらう
-どちらもにも同じ質問をしてみて解説してもらいます。
+## テスター用ページ
+https://testkun.net/react-postprocess-tester/
 
-### 通常 Claude Code
+## 開発環境
+- macOS Sequoia 15.5
+- VsCode
+- Node.js 20+
+- npm
 
-#### コマンド
-```zsh
-このプロジェクトを説明してほしい
+---
+
+:::details 使用技術スタック
+
+### コアライブラリ
+- **React 19.1.1** - UIフレームワーク
+- **Vite 7.1.2** - ビルドツール
+- **Three.js 0.179.1** - 3Dレンダリングエンジン
+- **@react-three/fiber 9.3.0** - ReactとThree.jsのブリッジ
+- **@react-three/drei 10.7.4** - React Three Fiberヘルパー集
+- **@react-three/postprocessing 3.0.4** - ポストプロセスReactラッパー
+- **postprocessing 6.37.7** - ポストプロセスエフェクトライブラリ
+
+### UI・ツール
+- **TailwindCSS 4.1.12** - スタイリング
+- **Leva 0.10.0** - リアルタイムパラメーター調整UI
+:::
+
+---
+
+## プロジェクト構造
+
+```
+react-postprocess-tester/
+├── src/
+│   ├── main.jsx                      # エントリーポイント
+│   ├── App.jsx                       # ルーター設定
+│   ├── components/
+│   │   ├── Navigation.jsx            # ナビゲーション
+│   │   ├── Scene.jsx                 # 3Dシーン設定
+│   │   └── postprocessing/           # ポストプロセスエフェクト
+│   │       ├── PostEffects.jsx       # エフェクトコントローラー
+│   │       ├── WaveEffect.jsx        # 波状歪みエフェクト
+│   │       ├── RGBSplitEffect.jsx    # 色収差エフェクト
+│   │       ├── KaleidoscopeEffect.jsx # 万華鏡エフェクト
+│   │       ├── ColorShiftEffect.jsx   # HSV色変換
+│   │       ├── FractalNoiseEffect.jsx # フラクタルノイズ
+│   │       ├── EdgeOutlineEffect.jsx  # エッジ検出
+│   │       ├── LensFlareEffect.jsx    # レンズフレア
+│   │       ├── ViewDepthVisualization.jsx    # デプスバッファ可視化
+│   │       ├── SimpleCheckNormalEffect.jsx   # 法線ベクトル可視化
+│   │       └── shaders/              # GLSLシェーダーファイル
+│   │           ├── wave.glsl
+│   │           ├── rgbSplit.glsl
+│   │           ├── kaleidoscope.glsl
+│   │           ├── colorShift.glsl
+│   │           ├── fractalNoise.glsl
+│   │           ├── edgeOutline.glsl
+│   │           ├── lensFlare.glsl
+│   │           ├── viewDepth.glsl
+│   │           ├── worldNormal.glsl
+│   │           └── index.js          # シェーダーエクスポート
+│   └── pages/
+│       └── PostEffectsSample.jsx     # メインデモページ
+├── package.json
+├── vite.config.js
+└── tailwind.config.js
 ```
 
-#### 結果
-```zsh
-⏺ このプロジェクトは、Slack内で Claude Code の AI
-  コーディングアシスタント機能を提供する TypeScript ベースの Slack ボットです。
+---
 
-  主要機能
+# セットアップ
 
-  作業ディレクトリ管理
-  - ベースディレクトリ設定（例：/Users/username/Code/）で短いプロジェクト名使用可能
-  - チャンネルごとのデフォルト作業ディレクトリ
-  - スレッド単位での作業ディレクトリ上書き機能
+## 1. プロジェクトのクローン
 
-  リアルタイム タスク追跡
-  - Claude の計画プロセスをフォーマットされたタスクリストとして表示
-  - 作業進行に応じたリアルタイム ステータス更新
-  - 優先度インジケーター（🔴 高、🟡 中、🟢 低）
-
-  ファイルアップロード対応
-  - 画像（JPG、PNG、GIF、WebP）、テキストファイル、コードファイル対応
-  - テキストファイルはプロンプトに直接埋め込み
-  - 画像は Claude が Read ツールで分析
-
-  高度なメッセージ処理
-  - ストリーミング レスポンス
-  - ツール使用の豊富なフォーマット
-  - ステータス インジケーター（🤔 思考中、⚙️ 作業中、✅ 完了）
-
-  MCP (Model Context Protocol) 統合
-  - 外部 MCP サーバーによる Claude 機能拡張
-  - ファイルシステムアクセス、GitHub API、データベース接続、Web検索など
-
-  アーキテクチャ
-
-  主要コンポーネント：
-  - slack-handler.ts - Slack イベント処理
-  - claude-handler.ts - Claude Code SDK 統合
-  - working-directory-manager.ts - ディレクトリ管理
-  - todo-manager.ts - タスク追跡
-  - mcp-manager.ts - MCP サーバー管理
-
-  このボットにより、Slack ワークスペース内で直接 AI によるコーディング支援、ファイル
-  分析、コードレビュー、プロジェクト管理が可能になります。
+```bash
+git clone https://github.com/testkun08080/react-postprocess-tester.git
+cd react-postprocess-tester
 ```
 
+## 2. 依存関係のインストール
 
-### Super Claude
-
-#### コマンド
-```zsh
-/sc:explain このプロジェクトを説明してほしい
+```bash
+npm install
 ```
 
-#### 結果
-```zsh
-> /sc:explain is running… このプロジェクトを説明してほしい
-  ⎿  Allowed 4 tools for this command
+## 3. 開発サーバー起動
 
-⏺ このプロジェクトについて詳しく分析して説明いたします。
+```bash
+npm run dev
+```
 
-⏺ Update Todos
-  ⎿  ☐ プロジェクト構造を分析    
-     ☐ 主要コンポーネントを特定
-     ☐ アーキテクチャと機能を解説
-     ☐ 技術スタックと設定を説明
+ブラウザで http://localhost:5173 にアクセスできるはずです。
 
-⏺ Read(package.json)
-  ⎿  Read 29 lines (ctrl+r to expand)
+![サンプル画面](/images/react-postshader-195d07b1ed77da/sample-screen.png)
+*Levaコントロールでリアルタイムにエフェクトを調整できます*
 
-⏺ List(~/Git/claude-code-slack-bot)
-  ⎿  Listed 26 paths (ctrl+r to expand)
+---
 
-⏺ Read(src)
-  ⎿  Error: EISDIR: illegal operation on a directory, read
+# ビルトインエフェクトの使い方
 
-⏺ List(src)
-  ⎿  Listed 16 paths (ctrl+r to expand)
+`@react-three/postprocessing`には20種類以上のビルトインエフェクトが用意されています。
 
-⏺ Read(src/index.ts)
-  ⎿  Read 58 lines (ctrl+r to expand)
+## 基本的な使い方
 
-⏺ Update Todos
-  ⎿  ☒ プロジェクト構造を分析    
-     ☐ 主要コンポーネントを特定
-     ☐ アーキテクチャと機能を解説
-     ☐ 技術スタックと設定を説明
+```jsx
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 
-⏺ Read(src/slack-handler.ts)
-  ⎿  Read 50 lines (ctrl+r to expand)
+function PostEffects() {
+  return (
+    <EffectComposer>
+      <Bloom intensity={1.0} luminanceThreshold={0.9} />
+      <Vignette offset={0.5} darkness={0.5} />
+    </EffectComposer>
+  );
+}
+```
 
-⏺ Read(src/claude-handler.ts)
-  ⎿  Read 50 lines (ctrl+r to expand)
+## 主要なビルトインエフェクト
 
-⏺ Read(src/config.ts)
-  ⎿  Read 34 lines (ctrl+r to expand)
+- **Bloom** - 光の滲みエフェクト
+- **DepthOfField** - 被写界深度（ボケ効果）
+- **ChromaticAberration** - 色収差
+- **Glitch** - グリッチノイズ
+- **Vignette** - ビネット（周辺減光）
+- **SSAO/N8AO** - スクリーンスペース アンビエント オクルージョン
+- **ToneMapping** - トーンマッピング
 
-⏺ Update Todos
-  ⎿  ☒ プロジェクト構造を分析    
-     ☒ 主要コンポーネントを特定
-     ☐ アーキテクチャと機能を解説
-     ☐ 技術スタックと設定を説明
+## Levaでパラメーター調整
 
-⏺ Claude Code Slack Bot プロジェクト説明
+このプロジェクトでは`Leva`を使ってリアルタイムにパラメーターを調整できます。
 
-  このプロジェクトは Claude Code SDK を活用した Slack Bot で、Slack ワークスペース内で AI
-  によるコーディング支援を提供するTypeScript ベースのアプリケーションです。
+```jsx
+import { useControls } from "leva";
 
-  🏗️ プロジェクト概要
+const bloomControls = useControls("Bloom", {
+  enabled: false,
+  intensity: { value: 1.0, min: 0, max: 3, step: 0.01 },
+  luminanceThreshold: { value: 0.9, min: 0, max: 1, step: 0.01 },
+});
+```
 
-  主要目的
+---
 
-  - リアルタイム AI アシスタンス: Slack チャネルや DM で Claude Code の機能を利用
-  - ファイル分析: 画像やコードファイルのアップロードと分析
-  - 作業ディレクトリ管理: プロジェクト固有のコンテキスト維持
-  - タスク追跡: リアルタイムでのタスクリストと進捗表示
+# カスタムシェーダーの作り方
 
-  🔧 技術アーキテクチャ
+ここからが本題です。カスタムシェーダーを作ってワールドノーマルを可視化してみます。
 
-  コアコンポーネント
+## 1. Effectクラスを継承したクラスを作成
 
-  1. エントリーポイント (src/index.ts)
+`postprocessing`ライブラリの`Effect`クラスを継承します。
 
-  - アプリケーション初期化とシステム起動
-  - 環境設定の検証
-  - Slack App、Claude Handler、MCP Manager の初期化
+```jsx
+// SimpleCheckNormalEffect.jsx
+import { forwardRef, useMemo, useEffect, useContext } from "react";
+import { Effect } from "postprocessing";
+import { Uniform, Matrix4 } from "three";
+import { EffectComposerContext } from "@react-three/postprocessing";
+import { checkNormalShader } from "./shaders/index.js";
 
-  2. Slack イベント処理 (src/slack-handler.ts)
-
-  - メッセージイベント、メンション、ファイルアップロードの処理
-  - Socket Mode によるリアルタイム通信
-  - スレッド管理とコンテキスト維持
-
-  3. Claude Code 統合 (src/claude-handler.ts)
-
-  - Claude Code SDK との通信
-  - ストリーミングレスポンス処理
-  - セッション管理（ユーザー/チャネル/スレッド別）
-
-  4. 作業ディレクトリ管理 (src/working-directory-manager.ts)
-
-  - チャネル固有のデフォルトディレクトリ
-  - スレッドによる一時的なオーバーライド
-  - 相対パス/絶対パスの解決
-
-  5. ファイル処理 (src/file-handler.ts)
-
-  - 画像、テキスト、コードファイルのサポート
-  - セキュアなダウンロードと一時保存
-  - ファイルサイズ制限（50MB）と自動クリーンアップ
-
-  6. タスク管理 (src/todo-manager.ts)
-
-  - Claude の計画プロセスのリアルタイム表示
-  - 優先度レベル（🔴 高、🟡 中、🟢 低）
-  - 進捗状況の動的更新
-
-  7. MCP サーバー管理 (src/mcp-manager.ts)
-
-  - Model Context Protocol サーバーの設定と管理
-  - 外部ツールとの統合（ファイルシステム、GitHub API等）
-  - 動的設定再読み込み
-
-  🌟 主要機能
-
-  1. インテリジェントな作業ディレクトリ管理
-
-  階層: スレッド固有 > チャネルデフォルト > DM 固有
-  設定: `cwd project-name` または `cwd /absolute/path`
-  サポート: 相対パス・絶対パス両対応
-
-  2. リアルタイムタスク追跡
-
-  📋 タスクリスト
-
-  🔄 進行中:
-  🔴 認証システムの分析
-
-  ⏳ 待機中:
-  🟡 OAuth フローの実装
-  🟢 エラーハンドリングの追加
-
-  進捗: 1/3 タスク完了 (33%)
-
-  3. 高度なメッセージ処理
-
-  - ストリーミングレスポンス: リアルタイムでメッセージ更新
-  - ツール使用の可視化: ファイル編集、bash コマンド等の表示
-  - ステータス表示: 🤔 考え中、⚙️ 作業中、✅ 完了
-
-  4. MCP 統合
-
-  - 外部ツール拡張: ファイルシステム、GitHub、データベース連携
-  - マルチサーバー対応: stdio、SSE、HTTP プロトコル
-  - 自動設定: mcp-servers.json から自動読み込み
-
-  5. セキュリティと権限管理
-
-  - Permission Server: Slack コンテキストでの安全な実行
-  - ファイル検証: タイプとサイズのバリデーション
-  - 一時ファイル管理: 自動クリーンアップ
-
-⏺ Update Todos
-  ⎿  ☒ プロジェクト構造を分析    
-     ☒ 主要コンポーネントを特定
-     ☒ アーキテクチャと機能を解説
-     ☐ 技術スタックと設定を説明
-
-⏺ 🛠️ 技術スタック
-
-  フロントエンド（Slack）
-
-  - @slack/bolt: Slack App 開発フレームワーク
-  - Socket Mode: リアルタイムイベント処理
-  - ファイルアップロード: 画像・コード・ドキュメント対応
-
-  バックエンド（Node.js）
-
-  - TypeScript 5.8.3: 型安全性とモダンJS
-  - @anthropic-ai/claude-code 1.0.35: Claude Code SDK
-  - @modelcontextprotocol/sdk 1.13.2: MCP サーバー統合
-  - node-fetch 3.3.2: HTTP クライアント
-  - dotenv 16.6.0: 環境変数管理
-
-  開発環境
-
-  "scripts": {
-    "start": "tsx src/index.ts",     // 本番実行
-    "dev": "tsx watch src/index.ts", // 開発モード
-    "build": "tsc",                  // TypeScript コンパイル
-    "prod": "node dist/index.js"     // プロダクション
+class SimpleCheckNormalEffectImpl extends Effect {
+  constructor({ normalBuffer, mode = 0, useWorldSpace = true }) {
+    super("SimpleCheckNormalEffect", checkNormalShader, {
+      uniforms: new Map([
+        ["normalBuffer", new Uniform(normalBuffer)],
+        ["uMode", new Uniform(mode)],
+        ["uUseWorldSpace", new Uniform(useWorldSpace)],
+        ["cameraMatrixWorld", new Uniform(new Matrix4())],
+        ["viewMatrix", new Uniform(new Matrix4())],
+        ["projectionMatrix", new Uniform(new Matrix4())],
+        ["inverseProjectionMatrix", new Uniform(new Matrix4())],
+      ]),
+    });
   }
 
-  ⚙️ 環境設定
+  // Setter for mode
+  set mode(value) {
+    this.uniforms.get("uMode").value = value;
+  }
 
-  必須環境変数
+  set useWorldSpace(value) {
+    this.uniforms.get("uUseWorldSpace").value = value;
+  }
 
-  # Slack App
-  SLACK_BOT_TOKEN=xoxb-your-bot-token
-  SLACK_APP_TOKEN=xapp-your-app-token
-  SLACK_SIGNING_SECRET=your-signing-secret
+  // Camera matrix setters
+  set cameraMatrixWorld(matrix) {
+    this.uniforms.get("cameraMatrixWorld").value = matrix;
+  }
 
-  # Claude Code
-  ANTHROPIC_API_KEY=your-anthropic-api-key
+  set viewMatrix(matrix) {
+    this.uniforms.get("viewMatrix").value = matrix;
+  }
 
-  オプション設定
+  set projectionMatrix(matrix) {
+    this.uniforms.get("projectionMatrix").value.copy(matrix);
+  }
 
-  # 作業ディレクトリ
-  BASE_DIRECTORY=/Users/username/Code/
-
-  # サードパーティプロバイダー
-  CLAUDE_CODE_USE_BEDROCK=1
-  CLAUDE_CODE_USE_VERTEX=1
-
-  # 開発
-  DEBUG=true
-
-  Slack App 権限
-
-  必須権限:
-    - app_mentions:read    # メンション読み取り
-    - channels:history     # チャネル履歴
-    - chat:write          # メッセージ送信
-    - im:history          # DM履歴
-    - users:read          # ユーザー情報
-    - reactions:write     # リアクション追加
-
-  イベント:
-    - app_mention         # メンション時
-    - message.im          # DM受信時
-    - member_joined_channel # チャネル追加時
-
-  🚀 使用例
-
-  チャネルセットアップ
-
-  1. ボットをチャネルに追加
-  2. ウェルカムメッセージで作業ディレクトリ設定を要求
-  3. `cwd project-name` でデフォルト設定
-  4. `@ClaudeBot 認証について手伝って` で利用開始
-
-  ファイル分析
-
-  [画像/コードファイルをアップロード]
-  このスクリーンショットを分析して改善案を提案して
-
-  MCP サーバー管理
-
-  # 設定済みサーバー確認
-  User: mcp
-  Bot: 🔧 MCP Servers:
-       • filesystem (stdio)
-       • github (stdio)
-
-  # 設定再読み込み
-  User: mcp reload
-  Bot: ✅ MCP設定を再読み込みしました
-
-⏺ Update Todos
-  ⎿  ☒ プロジェクト構造を分析    
-     ☒ 主要コンポーネントを特定
-     ☒ アーキテクチャと機能を解説
-     ☒ 技術スタックと設定を説明
-
-⏺ 💡 主要設計思想
-
-  1. セッションベースの会話管理
-
-  - ユーザー、チャネル、スレッド毎の独立したコンテキスト
-  - 継続的な対話の一貫性を保証
-  - メモリ効率的なセッション管理
-
-  2. 階層的作業ディレクトリ
-
-  優先順位: スレッド設定 > チャネルデフォルト > DM設定
-  柔軟性: 相対パス・絶対パス両対応
-  智能解決: ベースディレクトリ + プロジェクト名
-
-  3. リアルタイム透明性
-
-  - Claude の思考プロセスを可視化
-  - 進行中タスクのライブ更新
-  - エラー発生時の詳細なフィードバック
-
-  4. セキュリティファースト
-
-  - 環境変数による機密情報管理
-  - ファイルタイプ・サイズの厳格な検証
-  - 一時ファイルの自動クリーンアップ
-  - Permission Server による安全な実行制御
-
-  このプロジェクトは、開発者の生産性向上を目的とした高度な AI アシスタントシステムで、Slack
-  の使いやすさと Claude Code の強力な AI 機能を統合した実用的なソリューションです。
+  set inverseProjectionMatrix(matrix) {
+    this.uniforms.get("inverseProjectionMatrix").value.copy(matrix);
+  }
+}
 ```
 
-### そもそもclaude-code-slack-botの活用シーン
-スマホからとりあえずコマンドできるので、
+## 2. Reactコンポーネントでラップ
 
-- ご飯中
-- 外出中
-- お茶・コーヒ休憩
+React Three Fiberと統合するために`forwardRef`を使います。
 
-などなど。
-Claude Codeが時間を奪います。
-ただし、エラーやうまくいかないところがあるので、その内ローカルで修正してPRを出そうかと思いってます。
+```jsx
+export const SimpleCheckNormalEffect = forwardRef((props, ref) => {
+  const { normalPass, camera } = useContext(EffectComposerContext);
+
+  const effect = useMemo(
+    () =>
+      new SimpleCheckNormalEffectImpl({
+        normalBuffer: normalPass?.texture,
+        ...props,
+      }),
+    [normalPass, props]
+  );
+
+  // Update camera matrices
+  useEffect(() => {
+    if (camera) {
+      effect.cameraMatrixWorld = camera.matrixWorld;
+      effect.viewMatrix = camera.matrixWorldInverse;
+      effect.projectionMatrix = camera.projectionMatrix;
+      effect.inverseProjectionMatrix = camera.projectionMatrixInverse;
+    }
+  }, [effect, camera]);
+
+  // Update other properties
+  useEffect(() => {
+    if (props.mode !== undefined) effect.mode = props.mode;
+    if (props.useWorldSpace !== undefined)
+      effect.useWorldSpace = props.useWorldSpace;
+  }, [effect, props]);
+
+  return <primitive ref={ref} object={effect} dispose={null} />;
+});
+```
+
+## 3. GLSLシェーダーを記述
+
+```glsl
+// worldNormal.glsl
+uniform sampler2D normalBuffer;
+uniform int uMode;
+uniform bool uUseWorldSpace;
+uniform mat4 cameraMatrixWorld;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 inverseProjectionMatrix;
+
+// Convert view space normal to world space
+vec3 viewToWorldNormal(vec3 viewNormal) {
+  vec4 worldNormal = vec4(viewNormal, 1.0) * viewMatrix;
+  return worldNormal.xyz;
+}
+
+// Normal visualization modes
+vec3 visualizeNormal(vec3 normal, int mode) {
+  vec3 color;
+  vec3 n = normalize(normal);
+
+  if (mode == 0) {
+    // Normal RGB mode
+    color = n * 0.5 + 0.5; // Remap from [-1,1] to [0,1]
+  } else if (mode == 1) {
+    // Red channel only (X component)
+    float x = n.x * 0.5 + 0.5;
+    color = vec3(x, 0.0, 0.0);
+  } else if (mode == 2) {
+    // Green channel only (Y component)
+    float y = n.y * 0.5 + 0.5;
+    color = vec3(0.0, y, 0.0);
+  } else {
+    // Blue channel only (Z component)
+    float z = n.z * 0.5 + 0.5;
+    color = vec3(0.0, 0.0, z);
+  }
+
+  return color;
+}
+
+void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+  // Read normal from normal buffer (view space)
+  vec3 viewSpaceNormal = texture2D(normalBuffer, uv).xyz;
+  viewSpaceNormal = viewSpaceNormal * 2.0 - 1.0; // Remap to [-1,1]
+
+  // Choose between view space and world space
+  vec3 normal;
+  if (uUseWorldSpace) {
+    normal = viewToWorldNormal(viewSpaceNormal);
+  } else {
+    normal = viewSpaceNormal;
+  }
+
+  // Generate visualization color
+  vec3 normalColor = visualizeNormal(normal, uMode);
+
+  outputColor = vec4(normalColor, inputColor.a);
+}
+```
+
+## 4. EffectComposerに組み込む
+
+```jsx
+import { SimpleCheckNormalEffect } from "./SimpleCheckNormalEffect.jsx";
+
+const worldNormalControls = useControls("World Normal", {
+  enabled: false,
+  mode: { value: 0, min: 0, max: 3, step: 1 },
+  useWorldSpace: true,
+});
+
+<EffectComposer>
+  {worldNormalControls.enabled && (
+    <SimpleCheckNormalEffect
+      mode={worldNormalControls.mode}
+      useWorldSpace={worldNormalControls.useWorldSpace}
+    />
+  )}
+</EffectComposer>
+```
+
+![ワールドノーマル表示](/images/react-postshader-195d07b1ed77da/checknormal.png)
+*ワールドノーマルが色として可視化されます*
+
+---
+
+# カスタムエフェクト実装のポイント
+
+## Effectクラスの基本構造
+
+```javascript
+new Effect(name, fragmentShader, {
+  uniforms: new Map([
+    ["uniformName", new Uniform(value)],
+  ]),
+  blendFunction: BlendFunction.NORMAL,
+  attributes: EffectAttribute.CONVOLUTION,
+});
+```
+
+## mainImage関数
+
+GLSLシェーダーの`mainImage`関数が、各ピクセルに対して実行されます。
+
+```glsl
+void mainImage(
+  const in vec4 inputColor,  // 入力カラー
+  const in vec2 uv,          // UV座標 (0.0 ~ 1.0)
+  out vec4 outputColor       // 出力カラー
+)
+```
+
+## NormalPassの利用
+
+法線バッファを使うには`NormalPass`を有効にする必要があります。
+
+```jsx
+<EffectComposer>
+  <NormalPass />
+  {/* Your effects here */}
+</EffectComposer>
+```
+
+`EffectComposerContext`から`normalPass`を取得できます。
+
+```jsx
+const { normalPass, camera } = useContext(EffectComposerContext);
+```
+
+---
+
+
+# シェーダー一覧
+
+このプロジェクトでは以下のカスタムシェーダーを確認できます。
+スライドバーで画像比較がここでできればよかったんですけど、厳しいのでテスター用のページで見ていただければと思います。
+
+## SMAA
+
+絶妙な違いですけど、やっぱ有無では違いますね。
+
+![SMAA-ena](/images/react-postshader-195d07b1ed77da/ssma-ena.png)
+*ON*
+
+![SMAA-dis](/images/react-postshader-195d07b1ed77da/ssma-dis.png)
+*OFF*
+
+## Auto Focus
+
+マニュアルでもマウスで試すことも可能です
+
+![autofocus](/images/react-postshader-195d07b1ed77da/autofocus.png)
+
+
+## SSAO
+
+パラメーターを更新してもリアルタイムに範囲されないバグがあります。
+そして、激重。
+
+![ssao](/images/react-postshader-195d07b1ed77da/ssao.png)
+
+
+## n8ao (SSAO)
+
+SSAO使うなら、こちらを推奨します。
+使いやすいし、バグはないかなと思います。
+
+![n8ao](/images/react-postshader-195d07b1ed77da/n8ao.png)
+
+**[ソースレポ]https://github.com/N8python/n8ao**
+
+
+## Bloom(ブルーム)
+
+![bloom](/images/react-postshader-195d07b1ed77da/bloom.png)
+
+## Chromatic aberration(色収差)
+
+![chromatic](/images/react-postshader-195d07b1ed77da/chromatic.png)
+
+
+## Wave Distortion（波状歪みエフェクト）
+
+![Wave Distortion Effect](/images/react-postshader-195d07b1ed77da/wave.png)
+
+## RGB Split（色収差）
+
+![RGB Split Effect](/images/react-postshader-195d07b1ed77da/rgbsplit.png)
+
+
+## Kaleidoscope（万華鏡エフェクト）
+
+万華鏡っぽいやつ
+
+![Kaleidoscope Effect](/images/react-postshader-195d07b1ed77da/kaleidoscope.png)
+
+
+## Fractal Nois
+
+定番ノイズで歪みを出せるやつです
+
+![Fractal Noise Effect](/images/react-postshader-195d07b1ed77da/fractal.png)
+
+## Glitch
+
+壊れたモニターでよく使われるやつ
+
+![glitch](/images/react-postshader-195d07b1ed77da/glitch.png)
+
+## Pixcelation (ドット化)
+
+ドット風モザイク
+
+![pixcelation](/images/react-postshader-195d07b1ed77da/pixcelation.png)
+
+## Dot screen
+
+漫画、アメコミ風
+
+![dot-s](/images/react-postshader-195d07b1ed77da/dot-s.png)
+
+## Grid
+
+![grid](/images/react-postshader-195d07b1ed77da/grid.png)
+
+## Scanline
+
+![scanline](/images/react-postshader-195d07b1ed77da/scanline.png)
+
+## Outline
+
+選択しているオブジェクトのみにアウトラインをつけたり、隠れていても見えるようにするUX/UI用エフェクトだと思います。
+※内部では固定したオブジェクトを渡しています。
+
+![outline](/images/react-postshader-195d07b1ed77da/outline.png)
+
+
+## Edge Outline（エッジ検出エフェクト）
+
+深度バッファと法線バッファを使用してエッジを検出し、アウトラインを描画します。トゥーンシェーディングやセル画風の表現に使えます。
+
+![Edge Outline Effect](/images/react-postshader-195d07b1ed77da/edge-outline.png)
+
+
+## Sepia
+
+![sepia](/images/react-postshader-195d07b1ed77da/sepia.png)
+
+
+## Brightess contrast
+
+![bright-contrast](/images/react-postshader-195d07b1ed77da/bright-contrast.png)
+
+
+## Color Dot
+
+![bright-contrast](/images/react-postshader-195d07b1ed77da/color-dot.png)
+
+## Avarage Color
+
+![avarage-color](/images/react-postshader-195d07b1ed77da/color-avarage.png)
+
+## Avarage Color
+
+![avarage-color](/images/react-postshader-195d07b1ed77da/color-avarage.png)
+
+
+## Color Shift
+
+![color-shift](/images/react-postshader-195d07b1ed77da/color-shift.png)
+
+## Tilt shift
+
+![tilt-shift](/images/react-postshader-195d07b1ed77da/tiltshift.png)
+
+
+## Tilt shift 2
+
+![tilt-shift2](/images/react-postshader-195d07b1ed77da/tiltshift2.png)
+
+
+## Water
+
+![water](/images/react-postshader-195d07b1ed77da/water.png)
+
+
+## View Depth
+
+深度可視化用のデバッグ用です
+
+![vdepth](/images/react-postshader-195d07b1ed77da/vdepth.png)
+
+
+## View Depth Visualization（デプスバッファ可視化）
+
+カメラからの距離（深度）を白黒で視覚化します。デバッグやアート表現に有用で、近いほど黒く、遠いほど白く表示されます。
+
+![vdepth](/images/react-postshader-195d07b1ed77da/vdepth.png)
+
+## Simple Check Normal（法線ベクトル可視化）
+
+ノーマル可視化用のデバッグ用です
+ビューノーマルと、ワールド空間用のノーマルを切り替えてみれます
+
+![checknormal](/images/react-postshader-195d07b1ed77da/checknormal.png)
+
+## Check Normal
+
+ノーマル可視化用のデバッグ用です
+ビューノーマルと、ワールド空間用のノーマルを切り替えてみれます
+
+![checknormal](/images/react-postshader-195d07b1ed77da/checknormal.png)
+
+## Noise 
+
+雰囲気与えるのにノイズは便利です
+
+![checknormal](/images/react-postshader-195d07b1ed77da/noise.png)
+
+## Vignette
+
+![vignette](/images/react-postshader-195d07b1ed77da/Vignette.png)
+
+## Tonemap
+
+![tonemap](/images/react-postshader-195d07b1ed77da/tonemap.png)
+
+
+## Lut
+
+アセットは[ここ](https://github.com/mrdoob/three.js/tree/master/examples/luts)から引用させていただきました。
+地味にLUTテクスチャ達のインポートにテコづりました。
+
+![lut](/images/react-postshader-195d07b1ed77da/lut.png)
+
+
+## Ascii エフェクト
+
+アスキーの文字を使ってサイバーっぽくするやつです
+
+![ascii](/images/react-postshader-195d07b1ed77da/ascii.png)
+
+---
+
+## ハマったポイント
+
+### 1. View Space → World Spaceの変換
+カメラの`viewMatrix`を使って座標変換します。
+
+```glsl
+vec4 worldNormal = vec4(viewNormal, 1.0) * viewMatrix;
+```
+
+### 2. 一部ビルトインシェーダーがReact19では正しく動作しない
+ビルトインのGodrays, Lensfrare, FXAAなどは正しく動作しなかったので、今回は省いています。
+
+
+## シーン設定について
+一般的な、背景の非表示やライトの色などの簡易設定ができます。
+![setting](/images/react-postshader-195d07b1ed77da/setting.png)
+
+---
 
 ## まとめ
-体感時間としては、通常の方が早いけど、細かさで言うとSuper Claudeの方がまあ軍配が上がる。
-是非触っていない方は触って頂きたい。
+React Three FiberとPostprocessingライブラリを使えば、ブラウザ上で手軽にポストプロセスエフェクトを試せます。
+ビルトインエフェクトも豊富ですが、カスタムシェーダーも`Effect`クラスを継承するだけで簡単に統合できるのが良いですね。
 
-`体調崩さないようにAIツールとは向き合っていきたい`
+ワールドノーマルのような技術的なエフェクトから、レンズフレアや万華鏡のようなアーティスティックなエフェクトまで、
+色々と実験できるので、是非試してみてください。
 
+何かミスなどがあれば、コメントください〜
+
+では！
+
+---
 
 ### 関連リンク
-- [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)
-- [claude-code-slack-bot](https://github.com/mpociot/claude-code-slack-bot)
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/)
+- [Postprocessing Library](https://github.com/pmndrs/postprocessing)
+- [Three.js Documentation](https://threejs.org/docs/)
+- [Leva Controls](https://github.com/pmndrs/leva)
+- [サンプルレポ](https://github.com/testkun08080/react-postprocess-tester)
