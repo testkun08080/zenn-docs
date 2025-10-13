@@ -1,5 +1,5 @@
 ---
-title: " ポストエフェクト祭り。React/ポストプロセスを触ってカスタムシェーダーの作り方をざっくり理解してみる(ビルトインとカスタム)"
+title: " ポストエフェクト祭り。React/ポストプロセスを触ってカスタムシェーダーの作り方をざっくり理解してみよう"
 emoji: "📘"
 type: "tech"
 topics: [react, threejs, shader, postprocessing, webgl]
@@ -11,16 +11,19 @@ published_at: 2025-10-14 12:30
 もう九月か。。。
 独り立ちして約１年ぐらい経とうとしている中、ポートフォリオページがまだ`Under Maintenance`なので、
 重い腰を上げて、ポートフォリオページを作成することにしました。
-そこで、大好きなシェーダーをポートフォリオにももりもり使おうと思い立ったのが、きっかけです。
+そこで、大好きなシェーダーをポートフォリオにもモリモリ使おうと思い立ったのがきっかけです。
 （ゲームだとそうは行かないので）
 
-さて、この記事では以下モジュールで用意されている一般的なポストエフェクトの実装と、カスタムシェーダーを使ってワールドノーマルを表示するまでの工程を記します。
-それから一般的なカスタムシェーダーをClaudeに手伝っておもらったので、載せておきます。
+この記事では以下モジュール
 
 - **[@react-three/drei](https://github.com/pmndrs/drei)**
 - **[@react-three/postprocessing](https://docs.pmnd.rs/react-postprocessing)**
 - **[postprocessing](https://github.com/pmndrs/postprocessing)**
 
+で用意されている一般的なポストエフェクトの実装と、カスタムシェーダーを使ったワールドノーマルを表示を行ってみます。
+また、一般的なカスタムシェーダーをClaudeに手伝っておもらったので、載せておきます。
+
+少し目次は長いですけど、こんなのもあるのかぁ程度にサンプルとしてみて使っていただけたらと思います。
 
 ## レポ
 https://github.com/testkun08080/react-postprocess-tester
@@ -154,7 +157,7 @@ function PostEffects() {
 
 ## Levaでパラメーター調整
 
-このプロジェクトでは`Leva`を使ってリアルタイムにパラメーターを調整できます。
+`Leva`を使ってリアルタイムにパラメーターを調整できるようにします
 
 ```jsx
 import { useControls } from "leva";
@@ -574,12 +577,6 @@ SSAO使うなら、こちらを推奨します。
 
 ![checknormal](/images/react-postshader-195d07b1ed77da/checknormal.png)
 
-## Check Normal
-
-ノーマル可視化用のデバッグ用です
-ビューノーマルと、ワールド空間用のノーマルを切り替えてみれます
-
-![checknormal](/images/react-postshader-195d07b1ed77da/checknormal.png)
 
 ## Noise 
 
@@ -606,7 +603,7 @@ SSAO使うなら、こちらを推奨します。
 
 ## Ascii エフェクト
 
-アスキーの文字を使ってサイバーっぽくするやつです
+文字を使ってサイバーっぽくするやつです
 
 ![ascii](/images/react-postshader-195d07b1ed77da/ascii.png)
 
@@ -632,11 +629,11 @@ vec4 worldNormal = vec4(viewNormal, 1.0) * viewMatrix;
 ---
 
 ## まとめ
-React Three FiberとPostprocessingライブラリを使えば、ブラウザ上で手軽にポストプロセスエフェクトを試せます。
-ビルトインエフェクトも豊富ですが、カスタムシェーダーも`Effect`クラスを継承するだけで簡単に統合できるのが良いですね。
+色々なすでにビルトインされているものもあって手軽に使えてありがたいです。
+サンプルもshdertoyやthree.jsに色々落ちていたりするので、色々遊べます。
 
-ワールドノーマルのような技術的なエフェクトから、レンズフレアや万華鏡のようなアーティスティックなエフェクトまで、
-色々と実験できるので、是非試してみてください。
+カスタムシェーダーも`Effect`クラスを継承するだけでいいんですが、パスの渡し方とかそこら辺が触ってみないと何とも言えない感じでした。
+癖がわかれば、そのあとはスイスイ行けるかなぁと思います。
 
 何かミスなどがあれば、コメントください〜
 
