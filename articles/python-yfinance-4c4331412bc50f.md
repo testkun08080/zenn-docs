@@ -464,4 +464,4 @@ https://legal.yahoo.com/us/en/yahoo/permissions/requests/index.html
 本記事およびアプリケーションは教育・研究目的で作成されたものです。投資判断は自己責任でお願いします。
 
 ## その他
-もしこの記事が役立ったら、[コーヒ](https://zenn.dev/あなたのアカウント)  
+もしこの記事が役立ったら、[コーヒ一杯ほど](https://buymeacoffee.com/testkun08080)もらえると最高です
