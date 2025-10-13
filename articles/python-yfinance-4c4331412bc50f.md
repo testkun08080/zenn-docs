@@ -1,18 +1,18 @@
 ---
-title: "yfinanceで日本株3700社を分析！「わが投資術」株式スクリーニングアプリを作った話"
+title: "日本株3700社以上を分析。yfinance x「わが投資術」株式スクリーニングアプリを作った話"
 emoji: "📊"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["python", "yfinance", "react", "docker", "githubactions"]
 published: false
 ---
 
-## はじめに/作ったわけ
+# はじめに/作ったわけ
 
 海外で働き始めて、日本の良さが身に染みた。（海外に住んだ人なら、8割そうなんじゃないかなぁと）
 👇
 日本企業のもの結構外で見つけるなぁ。
 👇
-[わが投資術](https://amzn.to/3IEVRkq)という本を昨年？見つけて、参考に。
+日本株に興味を持ち、[わが投資術](https://amzn.to/3IEVRkq)という本を昨年？見つけて、参考に。
 👇
 お金貯めてても仕方ないし、良い企業探して実践してみよう。
 👇
@@ -20,10 +20,8 @@ published: false
 
 そんなノリから、**日本株全銘柄を自動収集・分析できるWebアプリ**を開発しました。
 
-この記事では、開発の経緯と技術的な実装について紹介します。
+この記事では、あらかたの工程と実際にローカルでこれを試す方法を紹介します。
 
-注意点として、yfinanceのデータの二時配布は禁止されています。
-詳しくは、yfinanceの利用規約をご覧ください。
 
 ## 作ったもの
 
@@ -40,7 +38,7 @@ published: false
 - 🐳 Docker環境での簡単デプロイ
 
 
-### 「わが投資術」との出会い
+# 「わが投資術」との出会い
 
 [わが投資術](https://amzn.to/3IEVRkq)では、**シンプルな指標**で割安株を見つける手法が紹介されています：
 
@@ -51,9 +49,9 @@ published: false
 
 これらの指標を**自動で取得・分析**できれば、個人投資家でも効率的に銘柄選定できると考えました。
 
-## 技術スタック
+# 技術スタック
 
-### アーキテクチャ
+## アーキテクチャ
 
 ```text
 ┌─────────────────────────────────────────────────┐
@@ -71,42 +69,36 @@ published: false
 └─────────────────────────────────────────────────┘
 ```
 
-### バックエンド（Python）
+## バックエンド（Python）
 
-| 技術 | 用途 |
-|------|------|
-| **Python 3.11+** | データ処理 |
-| **yfinance** | Yahoo Financeからデータ取得 |
-| **pandas** | データ整形・分析 |
-| **Docker** | 実行環境の統一 |
+- **Python 3.11+**
+- **yfinance**
+- **pandas**
 
-### フロントエンド（React）
+## フロントエンド（React）
 
-| 技術 | 用途 |
-|------|------|
-| **React 19** | UIフレームワーク |
-| **TypeScript** | 型安全性 |
-| **Vite** | 高速ビルドツール |
-| **Tailwind CSS + DaisyUI** | スタイリング |
-| **Papa Parse** | CSV解析 |
+- **React 19**
+- **TypeScript**
+- **Vite** 
+- **Tailwind CSS + DaisyUI** 
+- **Papa Parse** |
 
-### インフラ（GitHub Actions + Docker）
+## インフラ（GitHub Actions + Docker）
 
-| 技術 | 用途 |
-|------|------|
-| **GitHub Actions** | 自動データ収集（7ワークフロー） |
-| **Docker Compose** | マルチコンテナ管理 |
-| **nginx** | 静的ファイル配信 |
+- **GitHub Actions**
+- **Docker Compose**
+- **nginx**
 
-## 開発のポイント
+# 開発のポイント
 
-### 1. データ収集の自動化
+## 1. データ収集の自動化
 
-#### 課題: yfinance APIのレート制限
+### 課題: yfinance APIのレート制限
 
-約3,700社のデータを一度に取得すると、APIのレート制限やタイムアウトが発生します。
+約3,700社のデータをGithub Actionsで一度に取得すると、APIのレート制限やタイムアウトが発生します。
+（管理上も分けたかったという意図もあります。）
 
-#### 解決策: Sequential実行による分割処理
+### 解決策: 分割処理
 
 GitHub Actionsで**4段階のワークフロー**を構築し、自動連携させました。
 
@@ -123,14 +115,7 @@ Sequential Stock Fetch - Part 4 (stocks_4.json: 795社)
 CSV Combine & Export (全データ結合)
 ```
 
-**メリット:**
-
-- ✅ タイムアウト回避（各120分以内）
-- ✅ レート制限の回避
-- ✅ エラー時の部分的再実行が可能
-- ✅ 進捗の可視化
-
-#### 実装コード（ワークフロー連携部分）
+### 実装コード（ワークフロー連携部分）
 
 ```yaml
 # stock-fetch-sequential-1.yml
@@ -177,9 +162,9 @@ jobs:
           event-type: start-fetch-part-2
 ```
 
-### 2. データ処理の効率化
+## 2. データ処理の効率化
 
-#### JPX公式データの活用
+### JPX公式データの活用
 
 ```python
 # get_jp_stocklist.py（抜粋）
@@ -251,9 +236,9 @@ def process_stock_list(json_file: str):
               index=False, encoding='utf-8-sig')
 ```
 
-### 3. フロントエンドの実装
+## 3. フロントエンドの実装
 
-#### 動的CSVパース
+### 動的CSVパース
 
 ```typescript
 // csvParser.ts
@@ -341,9 +326,9 @@ export const useFilters = (data: StockData[]) => {
 };
 ```
 
-### 4. Docker環境の構築
+## 4. Docker環境の構築
 
-#### docker-compose.yml
+### docker-compose.yml
 
 ```yaml
 version: '3.8'
@@ -392,9 +377,9 @@ networks:
     driver: bridge
 ```
 
-## 使い方
+# 使い方
 
-### クイックスタート（Docker）
+## クイックスタート（Docker）
 
 ```bash
 # リポジトリをクローン
@@ -411,13 +396,13 @@ open http://localhost:8080
 **初回起動時の注意:**
 データ収集に約4時間かかります（約3,700社）。
 
-### ローカル環境での実行
+## ローカル環境での実行
 
 ```bash
 # データ収集
 cd stock_list
-pip install -r requirements.txt
-python sumalize.py stocks_sample.json  # テスト用（数十社）
+uv sync
+uv run sumalize.py stocks_sample.json  # テスト用（数十社）
 
 # フロントエンド
 cd stock_search
@@ -433,163 +418,30 @@ npm run preview
 3. 約6〜8時間後に全データ収集完了
 4. `stock_list/Export/` に結合済みCSVが生成される
 
-## ハマったポイント
 
-### 1. yfinance APIのレート制限
+# 重要な注意事項
 
-**問題:**
-連続でAPIリクエストを送ると429エラー（Too Many Requests）が発生。
-
-**解決策:**
-
-```python
-import time
-from tenacity import retry, stop_after_attempt, wait_exponential
-
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-def fetch_stock_data(ticker: str):
-    stock = yf.Ticker(f"{ticker}.T")
-    time.sleep(1)  # 1秒待機
-    return stock.info
-```
-
-### 2. GitHub Actionsのタイムアウト
-
-**問題:**
-3,700社を一度に処理すると6時間制限を超える。
-
-**解決策:**
-ワークフローを4分割し、順次実行する仕組みを構築。
-
-### 3. 日本語データの文字化け
-
-**問題:**
-CSVをExcelで開くと文字化けする。
-
-**解決策:**
-
-```python
-# UTF-8 BOMで保存
-df.to_csv('output.csv', encoding='utf-8-sig', index=False)
-```
-
-## 今後の展望
-
-### 機能追加予定
-
-- [ ] **スクリーニング条件のプリセット機能**
-  - 「わが投資術」推奨の条件を1クリックで適用
-- [ ] **チャート表示機能**
-  - 株価推移のビジュアライゼーション
-- [ ] **ポートフォリオ管理機能**
-  - 保有銘柄の一覧管理と損益計算
-- [ ] **アラート機能**
-  - 条件に合致した銘柄の通知
-
-### 技術的改善
-
-- [ ] **データ更新の効率化**
-  - 差分更新による処理時間短縮
-- [ ] **キャッシュ機能**
-  - ブラウザキャッシュによる表示高速化
-- [ ] **モバイル対応強化**
-  - レスポンシブデザインの改善
-
-## まとめ
-
-この記事では、yfinanceとReactを使った日本株スクリーニングアプリの開発について紹介しました。
-
-**ポイント:**
-
-- ✅ GitHub Actionsで完全自動化
-- ✅ Sequential実行でAPI制限を回避
-- ✅ Docker環境で誰でも簡単に実行可能
-- ✅ 「わが投資術」の考え方を実装
-
-個人投資家が**無料で**銘柄分析できる環境を作ることができました。
-
-### リポジトリ
-
-<https://github.com/testkun08080/waga-toushijutsu>
-
-興味のある方はぜひスターやフォークをお願いします！
-
-## 使用技術・ライブラリ
-
-このプロジェクトで使用している主要な技術とライブラリを紹介します。
-
-### バックエンド（Python）
-
-| ライブラリ | バージョン | 用途 |
-|-----------|-----------|------|
-| **yfinance** | 0.2.x | Yahoo Finance APIからの財務データ取得 |
-| **pandas** | 2.x | データ整形・分析・CSV操作 |
-| **requests** | 2.x | HTTP通信（JPXデータ取得） |
-| **openpyxl** | 3.x | Excelファイル（.xls）の読み込み |
-| **tenacity** | 8.x | リトライ処理・エラーハンドリング |
-
-### フロントエンド（React）
-
-| ライブラリ | バージョン | 用途 |
-|-----------|-----------|------|
-| **React** | 19.x | UIフレームワーク |
-| **TypeScript** | 5.x | 型安全性の確保 |
-| **Vite** | 6.x | 高速ビルドツール・開発サーバー |
-| **Papa Parse** | 5.x | CSVパース（日本語対応） |
-| **Tailwind CSS** | 3.x | ユーティリティファーストCSS |
-| **DaisyUI** | 4.x | Tailwind CSSコンポーネント |
-
-### インフラ・DevOps
-
-| 技術 | 用途 |
-|------|------|
-| **Docker** | コンテナ化・環境統一 |
-| **Docker Compose** | マルチコンテナオーケストレーション |
-| **nginx** | 静的ファイル配信・プロキシサーバー |
-| **GitHub Actions** | CI/CD・自動データ収集 |
-| **uv** | Python高速パッケージマネージャー |
-
-### その他
-
-- **Git** - バージョン管理
-- **JPX公式データ** - 株式リスト取得元
-- **Yahoo Finance API** - 財務データ取得元（yfinance経由）
-
-## 重要な注意事項
-
-### ⚠️ データの取り扱いについて
+## ⚠️ データの取り扱いについて
 
 このプロジェクトは**個人利用・研究・教育目的**でのみ使用してください。
 
-#### データ二次配布の禁止
+:::message alert
+**データの取り扱いは以下を参照ください**
+1.	Yahoo! Finance Terms of Service
+https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html
+•	「Content」や「Data」に関する条項を読む
+•	データの商用利用・再配布・保存期間などの制限が書かれている
+2.	Yahoo! Developer API Terms of Use
+https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm
+•	API で取得したデータの使用に関する制約
+3.	Yahoo! 権利関係ページ
+https://legal.yahoo.com/us/en/yahoo/permissions/requests/index.html
+•	特に商用利用や転載時の許可申請についての案内
+:::
 
-**Yahoo Financeから取得したデータは二次配布が禁止されています。**
-
-- ❌ 取得したCSVファイルをGitHubで公開しない
-- ❌ 取得したデータを他のユーザーと共有しない
-- ❌ 商用目的での利用は禁止
-- ✅ 個人の投資研究・学習目的のみ使用可
-- ✅ プライベートリポジトリでの使用を推奨
-
-#### 推奨される使用方法
-
-1. **プライベートリポジトリでフォーク**
-   - パブリックリポジトリでの使用は避ける
-   - データファイルは必ず`.gitignore`に追加
-
-2. **ローカル環境での実行**
-   - データ収集は各自の環境で実行
-   - CSVファイルはローカル保存のみ
-
-3. **GitHub Actionsの利用**
-   - プライベートリポジトリでワークフロー実行
-   - 生成されたデータファイルはコミットしない設定を推奨
-
-#### Yahoo Finance利用規約の遵守
-
-- データは**Yahoo! Japanの利用規約**に従って使用してください
 - APIのレート制限を守り、過度なリクエストは避けてください
 - 取得したデータの正確性は保証されません
+  
 
 ### 本プロジェクトのライセンス
 
@@ -610,3 +462,6 @@ df.to_csv('output.csv', encoding='utf-8-sig', index=False)
 
 **免責事項:**
 本記事およびアプリケーションは教育・研究目的で作成されたものです。投資判断は自己責任でお願いします。
+
+## その他
+もしこの記事が役立ったら、[コーヒ](https://zenn.dev/あなたのアカウント)  
