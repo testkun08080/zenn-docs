@@ -429,14 +429,13 @@ npm run preview
 **データの取り扱いは以下を参照ください**
 1.	Yahoo! Finance Terms of Service
 https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html
-•	「Content」や「Data」に関する条項を読む
-•	データの商用利用・再配布・保存期間などの制限が書かれている
+
 2.	Yahoo! Developer API Terms of Use
 https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm
-•	API で取得したデータの使用に関する制約
+
 3.	Yahoo! 権利関係ページ
 https://legal.yahoo.com/us/en/yahoo/permissions/requests/index.html
-•	特に商用利用や転載時の許可申請についての案内
+
 :::
 
 - APIのレート制限を守り、過度なリクエストは避けてください
