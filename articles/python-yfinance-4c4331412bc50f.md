@@ -25,7 +25,7 @@ published: false
 
 ## 作ったもの
 
-### 📊 [waga-toushijutsu](https://github.com/testkun08080/waga-toushijutsu)
+### 📊 [yfinance-jp-screener](https://github.com/testkun08080/yfinance-jp-screener)
 
 ![システム概要図](/images/python-yfinance-4c4331412bc50f/system-overview.png)
 
@@ -47,7 +47,18 @@ published: false
 - **自己資本比率**: 財務健全性の指標
 - **ネットキャッシュ**: 現金から負債を引いた実質的な資産
 
+PER：10倍以下（厳しめなら8倍以下）
+PBR：1倍以下
+時価総額：500億円以下
+流動資産 > 負債
+
 これらの指標を**自動で取得・分析**できれば、個人投資家でも効率的に銘柄選定できると考えました。
+
+なので、このスクリーニングアプリでは、
+
+- PBR
+- PER
+- ふせ木
 
 # 技術スタック
 
@@ -95,7 +106,7 @@ published: false
 
 ### 課題: yfinance APIのレート制限
 
-約3,700社のデータをGithub Actionsで一度に取得すると、APIのレート制限やタイムアウトが発生します。
+約3,795社のデータをGithub Actionsで一度に取得すると、APIのレート制限やタイムアウトが発生します。
 （管理上も分けたかったという意図もあります。）
 
 ### 解決策: 分割処理
@@ -383,8 +394,8 @@ networks:
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/testkun08080/waga-toushijutsu.git
-cd waga-toushijutsu
+git clone https://github.com/testkun08080/yfinance-jp-screener.git
+cd yfinance-jp-screener
 
 # Docker Composeで起動
 docker-compose up --build
@@ -394,7 +405,7 @@ open http://localhost:8080
 ```
 
 **初回起動時の注意:**
-データ収集に約4時間かかります（約3,700社）。
+データ収集に約4時間かかります（約3,795社）。
 
 ## ローカル環境での実行
 
@@ -448,7 +459,7 @@ https://legal.yahoo.com/us/en/yahoo/permissions/requests/index.html
 - **データ**: Yahoo! Japan利用規約に従うこと
 - **yfinance**: Apache License 2.0
 
-詳細は[LICENSE](https://github.com/testkun08080/waga-toushijutsu/blob/main/LICENSE)をご確認ください。
+詳細は[LICENSE](https://github.com/testkun08080/yfinance-jp-screener/blob/main/LICENSE)をご確認ください。
 
 ## 参考リンク
 
