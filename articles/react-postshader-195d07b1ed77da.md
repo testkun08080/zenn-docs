@@ -3,8 +3,8 @@ title: " ポストエフェクト祭り。React/ポストプロセスを触っ�
 emoji: "📘"
 type: "tech"
 topics: [react, threejs, shader, postprocessing, webgl]
-published: false
-published_at: 2025-10-15 12:30
+published: true
+published_at: 2025-10-16 12:30
 ---
 
 # はじめに
