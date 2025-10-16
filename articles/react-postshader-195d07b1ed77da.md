@@ -1,5 +1,5 @@
 ---
-title: " ポストエフェクト祭り。React/ポストプロセスを触ってカスタムシェーダーの作り方をざっくり理解してみよう"
+title: "ポストエフェクト祭り。React/ポストプロセスを触ってカスタムシェーダーの作り方をざっくり理解してみよう"
 emoji: "📘"
 type: "tech"
 topics: [react, threejs, shader, postprocessing, webgl]
@@ -8,6 +8,7 @@ published_at: 2025-10-16 12:30
 ---
 
 # はじめに
+
 もう九月か。。。
 独り立ちして約１年ぐらい経とうとしている中、ポートフォリオページがまだ`Under Maintenance`なので、
 重い腰を上げて、ポートフォリオページを作成することにしました。
@@ -21,17 +22,20 @@ published_at: 2025-10-16 12:30
 - **[postprocessing](https://github.com/pmndrs/postprocessing)**
 
 で用意されている一般的なポストエフェクトの実装と、カスタムシェーダーを使ったワールドノーマルを表示を行ってみます。
-また、一般的なカスタムシェーダーをClaudeに手伝っておもらったので、載せておきます。
+また、一般的なカスタムシェーダーを Claude に手伝っておもらったので、載せておきます。
 
 少し目次は長いですけど、こんなのもあるのかぁ程度にサンプルとしてみて使っていただけたらと思います。
 
 ## レポ
+
 https://github.com/testkun08080/react-postprocess-tester
 
 ## テスター用ページ
+
 https://testkun.net/react-postprocess-tester/
 
 ## 開発環境
+
 - macOS Sequoia 15.5
 - VsCode
 - Node.js 20+
@@ -42,18 +46,20 @@ https://testkun.net/react-postprocess-tester/
 :::details 使用技術スタック
 
 ### コアライブラリ
-- **React 19.1.1** - UIフレームワーク
+
+- **React 19.1.1** - UI フレームワーク
 - **Vite 7.1.2** - ビルドツール
-- **Three.js 0.179.1** - 3Dレンダリングエンジン
-- **@react-three/fiber 9.3.0** - ReactとThree.jsのブリッジ
-- **@react-three/drei 10.7.4** - React Three Fiberヘルパー集
-- **@react-three/postprocessing 3.0.4** - ポストプロセスReactラッパー
+- **Three.js 0.179.1** - 3D レンダリングエンジン
+- **@react-three/fiber 9.3.0** - React と Three.js のブリッジ
+- **@react-three/drei 10.7.4** - React Three Fiber ヘルパー集
+- **@react-three/postprocessing 3.0.4** - ポストプロセス React ラッパー
 - **postprocessing 6.37.7** - ポストプロセスエフェクトライブラリ
 
 ### UI・ツール
+
 - **TailwindCSS 4.1.12** - スタイリング
-- **Leva 0.10.0** - リアルタイムパラメーター調整UI
-:::
+- **Leva 0.10.0** - リアルタイムパラメーター調整 UI
+  :::
 
 ---
 
@@ -122,13 +128,13 @@ npm run dev
 ブラウザで http://localhost:5173 にアクセスできるはずです。
 
 ![サンプル画面](/images/react-postshader-195d07b1ed77da/sample-screen.png)
-*Levaコントロールでリアルタイムにエフェクトを調整できます*
+_Leva コントロールでリアルタイムにエフェクトを調整できます_
 
 ---
 
 # ビルトインエフェクトの使い方
 
-`@react-three/postprocessing`には20種類以上のビルトインエフェクトが用意されています。
+`@react-three/postprocessing`には 20 種類以上のビルトインエフェクトが用意されています。
 
 ## 基本的な使い方
 
@@ -155,7 +161,7 @@ function PostEffects() {
 - **SSAO/N8AO** - スクリーンスペース アンビエント オクルージョン
 - **ToneMapping** - トーンマッピング
 
-## Levaでパラメーター調整
+## Leva でパラメーター調整
 
 `Leva`を使ってリアルタイムにパラメーターを調整できるようにします
 
@@ -175,7 +181,7 @@ const bloomControls = useControls("Bloom", {
 
 ここからが本題です。カスタムシェーダーを作ってワールドノーマルを可視化してみます。
 
-## 1. Effectクラスを継承したクラスを作成
+## 1. Effect クラスを継承したクラスを作成
 
 `postprocessing`ライブラリの`Effect`クラスを継承します。
 
@@ -230,9 +236,9 @@ class SimpleCheckNormalEffectImpl extends Effect {
 }
 ```
 
-## 2. Reactコンポーネントでラップ
+## 2. React コンポーネントでラップ
 
-React Three Fiberと統合するために`forwardRef`を使います。
+React Three Fiber と統合するために`forwardRef`を使います。
 
 ```jsx
 export const SimpleCheckNormalEffect = forwardRef((props, ref) => {
@@ -268,7 +274,7 @@ export const SimpleCheckNormalEffect = forwardRef((props, ref) => {
 });
 ```
 
-## 3. GLSLシェーダーを記述
+## 3. GLSL シェーダーを記述
 
 ```glsl
 // worldNormal.glsl
@@ -331,7 +337,7 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 }
 ```
 
-## 4. EffectComposerに組み込む
+## 4. EffectComposer に組み込む
 
 ```jsx
 import { SimpleCheckNormalEffect } from "./SimpleCheckNormalEffect.jsx";
@@ -349,31 +355,29 @@ const worldNormalControls = useControls("World Normal", {
       useWorldSpace={worldNormalControls.useWorldSpace}
     />
   )}
-</EffectComposer>
+</EffectComposer>;
 ```
 
 ![ワールドノーマル表示](/images/react-postshader-195d07b1ed77da/checknormal.png)
-*ワールドノーマルが色として可視化されます*
+_ワールドノーマルが色として可視化されます_
 
 ---
 
 # カスタムエフェクト実装のポイント
 
-## Effectクラスの基本構造
+## Effect クラスの基本構造
 
 ```javascript
 new Effect(name, fragmentShader, {
-  uniforms: new Map([
-    ["uniformName", new Uniform(value)],
-  ]),
+  uniforms: new Map([["uniformName", new Uniform(value)]]),
   blendFunction: BlendFunction.NORMAL,
   attributes: EffectAttribute.CONVOLUTION,
 });
 ```
 
-## mainImage関数
+## mainImage 関数
 
-GLSLシェーダーの`mainImage`関数が、各ピクセルに対して実行されます。
+GLSL シェーダーの`mainImage`関数が、各ピクセルに対して実行されます。
 
 ```glsl
 void mainImage(
@@ -383,7 +387,7 @@ void mainImage(
 )
 ```
 
-## NormalPassの利用
+## NormalPass の利用
 
 法線バッファを使うには`NormalPass`を有効にする必要があります。
 
@@ -402,7 +406,6 @@ const { normalPass, camera } = useContext(EffectComposerContext);
 
 ---
 
-
 # シェーダー一覧
 
 このプロジェクトでは以下のカスタムシェーダーを確認できます。
@@ -413,17 +416,16 @@ const { normalPass, camera } = useContext(EffectComposerContext);
 絶妙な違いですけど、やっぱ有無では違いますね。
 
 ![SMAA-ena](/images/react-postshader-195d07b1ed77da/ssma-ena.png)
-*ON*
+_ON_
 
 ![SMAA-dis](/images/react-postshader-195d07b1ed77da/ssma-dis.png)
-*OFF*
+_OFF_
 
 ## Auto Focus
 
 マニュアルでもマウスで試すことも可能です
 
 ![autofocus](/images/react-postshader-195d07b1ed77da/autofocus.png)
-
 
 ## SSAO
 
@@ -432,16 +434,14 @@ const { normalPass, camera } = useContext(EffectComposerContext);
 
 ![ssao](/images/react-postshader-195d07b1ed77da/ssao.png)
 
-
 ## n8ao (SSAO)
 
-SSAO使うなら、こちらを推奨します。
+SSAO 使うなら、こちらを推奨します。
 使いやすいし、バグはないかなと思います。
 
 ![n8ao](/images/react-postshader-195d07b1ed77da/n8ao.png)
 
 **[ソースレポ]https://github.com/N8python/n8ao**
-
 
 ## Bloom(ブルーム)
 
@@ -451,7 +451,6 @@ SSAO使うなら、こちらを推奨します。
 
 ![chromatic](/images/react-postshader-195d07b1ed77da/chromatic.png)
 
-
 ## Wave Distortion（波状歪みエフェクト）
 
 ![Wave Distortion Effect](/images/react-postshader-195d07b1ed77da/wave.png)
@@ -460,13 +459,11 @@ SSAO使うなら、こちらを推奨します。
 
 ![RGB Split Effect](/images/react-postshader-195d07b1ed77da/rgbsplit.png)
 
-
 ## Kaleidoscope（万華鏡エフェクト）
 
 万華鏡っぽいやつ
 
 ![Kaleidoscope Effect](/images/react-postshader-195d07b1ed77da/kaleidoscope.png)
-
 
 ## Fractal Nois
 
@@ -502,11 +499,10 @@ SSAO使うなら、こちらを推奨します。
 
 ## Outline
 
-選択しているオブジェクトのみにアウトラインをつけたり、隠れていても見えるようにするUX/UI用エフェクトだと思います。
+選択しているオブジェクトのみにアウトラインをつけたり、隠れていても見えるようにする UX/UI 用エフェクトだと思います。
 ※内部では固定したオブジェクトを渡しています。
 
 ![outline](/images/react-postshader-195d07b1ed77da/outline.png)
-
 
 ## Edge Outline（エッジ検出エフェクト）
 
@@ -514,16 +510,13 @@ SSAO使うなら、こちらを推奨します。
 
 ![Edge Outline Effect](/images/react-postshader-195d07b1ed77da/edge-outline.png)
 
-
 ## Sepia
 
 ![sepia](/images/react-postshader-195d07b1ed77da/sepia.png)
 
-
 ## Brightess contrast
 
 ![bright-contrast](/images/react-postshader-195d07b1ed77da/bright-contrast.png)
-
 
 ## Color Dot
 
@@ -537,7 +530,6 @@ SSAO使うなら、こちらを推奨します。
 
 ![avarage-color](/images/react-postshader-195d07b1ed77da/color-avarage.png)
 
-
 ## Color Shift
 
 ![color-shift](/images/react-postshader-195d07b1ed77da/color-shift.png)
@@ -546,23 +538,13 @@ SSAO使うなら、こちらを推奨します。
 
 ![tilt-shift](/images/react-postshader-195d07b1ed77da/tiltshift.png)
 
-
 ## Tilt shift 2
 
 ![tilt-shift2](/images/react-postshader-195d07b1ed77da/tiltshift2.png)
 
-
 ## Water
 
 ![water](/images/react-postshader-195d07b1ed77da/water.png)
-
-
-## View Depth
-
-深度可視化用のデバッグ用です
-
-![vdepth](/images/react-postshader-195d07b1ed77da/vdepth.png)
-
 
 ## View Depth Visualization（デプスバッファ可視化）
 
@@ -577,8 +559,7 @@ SSAO使うなら、こちらを推奨します。
 
 ![checknormal](/images/react-postshader-195d07b1ed77da/checknormal.png)
 
-
-## Noise 
+## Noise
 
 雰囲気与えるのにノイズは便利です
 
@@ -592,14 +573,12 @@ SSAO使うなら、こちらを推奨します。
 
 ![tonemap](/images/react-postshader-195d07b1ed77da/tonemap.png)
 
-
 ## Lut
 
 アセットは[ここ](https://github.com/mrdoob/three.js/tree/master/examples/luts)から引用させていただきました。
-地味にLUTテクスチャ達のインポートにテコづりました。
+地味に LUT テクスチャ達のインポートにテコづりました。
 
 ![lut](/images/react-postshader-195d07b1ed77da/lut.png)
-
 
 ## Ascii エフェクト
 
@@ -611,31 +590,34 @@ SSAO使うなら、こちらを推奨します。
 
 ## ハマったポイント
 
-### 1. View Space → World Spaceの変換
+### 1. View Space → World Space の変換
+
 カメラの`viewMatrix`を使って座標変換します。
 
 ```glsl
 vec4 worldNormal = vec4(viewNormal, 1.0) * viewMatrix;
 ```
 
-### 2. 一部ビルトインシェーダーがReact19では正しく動作しない
-ビルトインのGodrays, Lensfrare, FXAAなどは正しく動作しなかったので、今回は省いています。
+### 2. 一部ビルトインシェーダーが React19 では正しく動作しない
 
+ビルトインの Godrays, Lensfrare, FXAA などは正しく動作しなかったので、今回は省いています。
 
 ## シーン設定について
+
 一般的な、背景の非表示やライトの色などの簡易設定ができます。
 ![setting](/images/react-postshader-195d07b1ed77da/setting.png)
 
 ---
 
 ## まとめ
+
 色々なすでにビルトインされているものもあって手軽に使えてありがたいです。
-サンプルもshdertoyやthree.jsに色々落ちていたりするので、色々遊べます。
+サンプルも shdertoy や three.js に色々落ちていたりするので、色々遊べます。
 
 カスタムシェーダーも`Effect`クラスを継承するだけでいいんですが、パスの渡し方とかそこら辺が触ってみないと何とも言えない感じでした。
 癖がわかれば、そのあとはスイスイ行けるかなぁと思います。
 
-好評や色々な方が見られるようでしたら、工程をもっと細かく砕いてzennなどの本としてまとめてみようかと思います。
+好評や色々な方が見られるようでしたら、工程をもっと細かく砕いて zenn などの本としてまとめてみようかと思います。
 
 何かミスなどがあれば、コメントください〜
 では！
@@ -643,6 +625,7 @@ vec4 worldNormal = vec4(viewNormal, 1.0) * viewMatrix;
 ---
 
 ### 関連リンク
+
 - [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/)
 - [Postprocessing Library](https://github.com/pmndrs/postprocessing)
 - [Three.js Documentation](https://threejs.org/docs/)
