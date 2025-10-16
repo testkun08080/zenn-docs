@@ -16,7 +16,6 @@ published: false
 海外で働き始めたり旅行したりすると、日本の良さが身に染みたと感じた人は多いんじゃないでしょうか？
 なんかとりあえず外で働いてみたいと思っていましたが、今はいつ戻るかと考える日々です。（とにかく温泉に入りたい）
 
-僕は完全にその一人なんですが、、
 色々と各国を回る中で、日本企業ってアジア圏や他の国にもかなり進出してるんだなぁと実感しました。（そりゃそう）
 
 そんなこんなで日本株に興味を持ち始め、
@@ -291,14 +290,28 @@ jobs:
           git push
 
       # 次のワークフローを自動トリガー
-      - name: Trigger Part 2
-        uses: peter-evans/repository-dispatch@v2
+      - name: 🚀 Trigger Part 2
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: start-fetch-part-2
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const result = await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'stock-fetch-sequential-2.yml',
+              ref: 'main',
+              inputs: {
+                reason: 'Auto-triggered by Part 1 completion'
+              }
+            });
+            console.log('✅ Part 2 triggered successfully');
 ```
 
 ## 2. データ処理の効率化
+
+:::message
+以下のコード例は、理解しやすさを優先して簡略化しています。実際のプロジェクトには、エラーハンドリング、ロギング機能、郵便番号から都道府県への変換など、より多くの機能が実装されています。
+:::
 
 ### JPX 公式データの活用
 
@@ -373,6 +386,10 @@ def process_stock_list(json_file: str):
 ```
 
 ## 3. フロントエンドの実装
+
+:::message
+以下のコード例は簡略版です。実際のプロジェクトでは、23 項目のフィルター、URL パラメータ連携、ソート機能など、より高度な機能を実装しています。
+:::
 
 ### 動的 CSV パース
 
@@ -474,8 +491,8 @@ services:
   # データ収集サービス
   python-service:
     build:
-      context: ./stock_list
-      dockerfile: ../Dockerfile.fetch
+      context: .
+      dockerfile: Dockerfile.fetch
     environment:
       - STOCK_FILE=stocks_1.json
     volumes:
@@ -491,16 +508,25 @@ services:
   # フロントエンドサービス
   frontend-service:
     build:
-      context: ./stock_search
-      dockerfile: ../Dockerfile.app
+      context: .
+      dockerfile: Dockerfile.app
     ports:
       - "8080:80"
     volumes:
       - stock-data:/usr/share/nginx/html/csv:ro
     depends_on:
-      - python-service
+      python-service:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -602,12 +628,12 @@ npm run preview
 
 ---
 
-**免責事項:**
-本記事およびアプリケーションは教育・研究目的で作成されたものです。投資判断は自己責任でお願いします。
-
 ## その他
 
 もしこの記事が役立ったら、[コーヒ一杯ほど](https://buymeacoffee.com/testkun08080)もらえると最高です
 
 最後までお読みいただきありがとうございます。
 それでは 🙏
+
+**免責事項:**
+投資判断は自己責任でお願いします。
