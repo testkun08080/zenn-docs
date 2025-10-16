@@ -553,8 +553,12 @@ networks:
 git clone https://github.com/testkun08080/yfinance-jp-screener.git
 cd yfinance-jp-screener
 
+cp .env.example .env
+# STOCK_FILEはデフォルトでは"stocks_sample.json"になっています。 必ず全て取得したい場合は"stocks_all.json"へ変えて下さい
+
+
 # Docker Composeで起動
-docker-compose up --build
+./scripts/start.sh --build # or docker-compose up --build
 
 # ブラウザでアクセス
 open http://localhost:8080
@@ -570,24 +574,54 @@ open http://localhost:8080
 - [UV](https://docs.astral.sh/uv/getting-started/installation/)
 - [nodejs](https://nodejs.org/en/download)
 
+#### データ取得環境のセットアップ
+
 ```bash
-# リポジトリをクローン
-git clone https://github.com/testkun08080/yfinance-jp-screener.git
-cd yfinance-jp-screener
+# 1. リポジトリをクローン
+git clone https://github.com/yourusername/yfinance-jp-screener.git
+cd yfinance-jp-screener/stock_list
 
-# データ収集
-cd stock_list
+# 2. Python環境のセットアップ（uvを使用）
 uv sync
-uv run sumalize.py stocks_sample.json  # テスト用（数十社）
 
-# フロントエンド
+# 3. 株式リスト取得（初回のみ）
+uv run get_jp_stocklist.py
+
+# 4. データ取得を実行
+uv run sumalize.py stocks_sample.json   #ダウンロードテスト用
+
+#===約1000社ずつダウンロード(推奨)===
+# uv run sumalize.py stocks_1.json
+# uv run sumalize.py stocks_2.json
+# uv run sumalize.py stocks_3.json
+# uv run sumalize.py stocks_4.json
+
+#===すべての銘柄を対象にしたダウロード===
+# uv run sumalize.py stocks_all.json
+
+# 6. CSV結合
+uv run combine_latest_csv.py
+```
+
+#### フロントエンド環境のセットアップ
+
+```bash
+# 1. フロントエンドディレクトリへ移動
 cd ../stock_search
+
+# 2. 依存関係をインストール
 npm install
 
-# buildしたときにcsvをコピーするスクリプトが走るのでbuildは必須です
+# 3. ビルド（ビルドしないとcsvが正常にpublicへコピーされません）
 npm run build
+
+# 4. プレビュー
 npm run preview
+# http://localhost:4173/ にアクセス
+
 ```
+
+---
 
 ### GitHub Actions での自動収集
 
