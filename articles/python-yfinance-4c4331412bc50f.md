@@ -16,14 +16,16 @@ published: false
 海外で働き始めたり旅行したりすると、日本の良さが身に染みたと感じた人は多いんじゃないでしょうか？
 なんかとりあえず外で働いてみたいと思っていましたが、今はいつ戻るかと考える日々です。（とにかく温泉に入りたい）
 
-色々と各国を回る中で、日本企業ってアジア圏や他の国にもかなり進出してるんだなぁと実感しました。（そりゃそう）
+また色々と各国を回る中で、日本企業ってアジア圏や他の国にもかなり進出してるんだなぁと実感しました。（そりゃそう）
 
-そんなこんなで日本株に興味を持ち始め、
-昨年に[わが投資術](https://amzn.to/3IEVRkq)見つけて参考にさせていただきながら実践していました。（まだ初めて一年目なので成績はわかりません。。。が、マイナスは無し）
+そんなこんなで日本株に興味を持ち
+昨年に[わが投資術](https://amzn.to/3IEVRkq)を参考にさせていただきながら実践し始めました。（まだ初めて一年目なので成績はわかりません。。。が、マイナスは無し）
 
-自分でバフェットコードや Claude yfinance mcp などを利用してやってみたものの、せっかくだから、アプリ作って公開してみよう(vibe coding)
+自分でバフェットコードや Claude yfinance mcp などを利用しながらスクリーニングしてみましたが、毎回決算が出るたびに手動とチャット相手にあるのも何かなぁ。と思いまして。
 
-そんなノリから、**日本株全銘柄を自動収集・分析できる Web アプリ**を開発しました。
+じゃあ自動収集とスクリーニング用のアプリ作ってみよう(vibe coding)
+
+そんなノリから、**日本株全銘柄を自動収集・簡易スクリーニングできる Web アプリ**を開発しました。
 
 この記事では、粗方の工程と実際にローカルでこれを試す方法を紹介します。
 細かいコードなどはそこまで期待しないでください 😅
@@ -42,8 +44,8 @@ _検索結果(企業名はここでは伏せておきます)_
 - 📈 JPX 公式データから約 3,795 銘柄を自動取得
 - 🔍 財務指標による高速スクリーニング
 - 📊 PBR、ROE、自己資本比率などの指標可視化
-- ⚙️ GitHub Actions による完全自動データ収集
-- 🐳 Docker 環境での簡単デプロイ
+- ⚙️ GitHub Actions による自動データ収集
+- 🐳 Docker 簡単デプロイ
 
 # 「わが投資術」との出会い
 
@@ -65,7 +67,7 @@ _検索結果(企業名はここでは伏せておきます)_
 ![search1](/images/python-yfinance-4c4331412bc50f/img_search1.png)
 
 - **会社名検索** - テキスト検索（部分一致）
-- **銘柄コード検索** - 4 桁のコード検索
+- **銘柄コード検索** - コード検索
 - **時価総額** -
 - **業種** - 複数選択可能（チェックボックス）
 - **優先市場** - プライム/スタンダード/グロース（複数選択）
@@ -114,17 +116,27 @@ _検索結果(企業名はここでは伏せておきます)_
 
 ```text
 ┌─────────────────────────────────────────────────┐
-│         GitHub Actions (データ収集)              │
-│  JPX公式 → yfinance API → CSV生成 → Combine     │
-└─────────────────┬───────────────────────────────┘
-                  │
-                  ↓
+│            データソース (JPX公式 + Yahoo Finance)  │
+└────────┬───────────────────────────────┬────────┘
+         │                               │
+         ↓                               ↓
+┌────────────────────┐        ┌─────────────────────┐
+│  GitHub Actions    │        │ ローカル環境          │
+│  (CI/CD自動収集)    │        │ (Docker Compose).   │
+│                    │        │                     │
+│  Part 1-4          │        │  Python Service     │
+│  → CSV Combine     │        │  → CSV生成           │
+└────────┬───────────┘        └─────────┬───────────┘
+         │                               │
+         ↓                               ↓
 ┌─────────────────────────────────────────────────┐
-│              Docker Compose                      │
-│  ┌──────────────┐      ┌──────────────────────┐ │
-│  │ Python       │      │ React + nginx        │ │
-│  │ (データ処理) │ ───→ │ (フロントエンド)      │ │
-│  └──────────────┘      └──────────────────────┘ │
+│            CSV ファイル (Export/)                │
+└────────┬────────────────────────────────────────┘
+         │
+         ↓
+┌─────────────────────────────────────────────────┐
+│         React フロントエンド (Docker/Local)      　│
+│  CSV Drag & Drop → 検索・フィルタ → 結果表示        │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -137,35 +149,42 @@ graph TB
         Yahoo[Yahoo Finance API<br/>yfinance]
     end
 
-    subgraph "GitHub Actions - データ収集パイプライン"
+    subgraph "方法1: GitHub Actions - 自動収集パイプライン"
         StockList[Stock List Update<br/>株式リスト取得]
         Part1[Sequential Part 1<br/>stocks_1.json<br/>1-1000社]
         Part2[Sequential Part 2<br/>stocks_2.json<br/>1001-2000社]
         Part3[Sequential Part 3<br/>stocks_3.json<br/>2001-3000社]
         Part4[Sequential Part 4<br/>stocks_4.json<br/>3001-3795社]
         Combine[CSV Combine<br/>データ結合]
+        CSV_GA[CSV出力<br/>Export/]
     end
 
-    subgraph "Docker環境"
+    subgraph "方法2: ローカル Docker Compose"
         subgraph "Python Service"
             DataProcess[データ処理<br/>sumalize.py]
-            CSV[CSV生成<br/>Export/]
+            CSV_Local[CSV生成<br/>Export/]
         end
+    end
 
-        subgraph "Frontend Service"
+    subgraph "エクスポート済みCSV"
+        CSVFiles[(CSV ファイル<br/>Export/<br/>YYYYMMDD_combined.csv)]
+    end
+
+    subgraph "完成アプリケーション (Docker/Local)"
+        subgraph "React Webアプリ"
             React[React 19 + TypeScript<br/>Vite]
             Nginx[nginx<br/>静的配信]
         end
 
-        Volume[(Shared Volume<br/>stock-data)]
+        subgraph "ブラウザ UI"
+            UI[Webアプリ起動<br/>localhost:8080/5173]
+            Upload[CSV DnD<br/>アップロード機能]
+            Table[データテーブル<br/>検索・フィルタ]
+            Analysis[財務分析<br/>PBR/ROE/自己資本比率]
+        end
     end
 
-    subgraph "Webアプリケーション"
-        UI[ブラウザ UI<br/>localhost:8080]
-        Table[データテーブル<br/>検索・フィルタ]
-        Analysis[財務分析<br/>PBR/ROE/自己資本比率]
-    end
-
+    %% GitHub Actions フロー
     JPX -->|Excel→JSON変換| StockList
     StockList -->|自動トリガー| Part1
     Part1 -->|自動トリガー| Part2
@@ -178,12 +197,22 @@ graph TB
     Yahoo -->|API取得| Part3
     Yahoo -->|API取得| Part4
 
-    Combine -->|CSV出力| CSV
-    CSV -->|Volume共有| Volume
-    Volume -->|読み取り| React
+    Combine -->|CSV出力| CSV_GA
+    CSV_GA -->|保存| CSVFiles
+
+    %% ローカル Docker フロー
+    JPX -->|JSON取得| DataProcess
+    Yahoo -->|API取得| DataProcess
+    DataProcess -->|CSV生成| CSV_Local
+    CSV_Local -->|保存| CSVFiles
+
+    %% アプリケーション起動フロー
     React -->|ビルド| Nginx
     Nginx -->|HTTP配信| UI
-    UI --> Table
+
+    %% ユーザー操作フロー (CSV → アプリ)
+    CSVFiles -.->|ユーザーが手動で<br/>Drag & Drop| Upload
+    Upload -->|CSVパース| Table
     Table --> Analysis
 
     style JPX fill:#e1f5ff
@@ -194,21 +223,24 @@ graph TB
     style Part3 fill:#f3e5f5
     style Part4 fill:#f3e5f5
     style Combine fill:#fff4e6
+    style CSV_GA fill:#e8f5e9
     style DataProcess fill:#e8f5e9
+    style CSV_Local fill:#e8f5e9
+    style CSVFiles fill:#fce4ec
+    style Upload fill:#ffe0b2
     style React fill:#e3f2fd
     style Nginx fill:#e3f2fd
-    style Volume fill:#fce4ec
     style UI fill:#f1f8e9
+    style Table fill:#fff9c4
     style Analysis fill:#fff9c4
 ```
 
 :::
 
-## バックエンド（Python）
+## データ収集（Python）
 
 - **Python 3.11+**
 - **yfinance**
-- **pandas**
 
 ## フロントエンド（React）
 
@@ -216,13 +248,11 @@ graph TB
 - **TypeScript**
 - **Vite**
 - **Tailwind CSS + DaisyUI**
-- \*_Papa Parse_
 
-## インフラ（GitHub Actions + Docker）
+## インフラ
 
 - **GitHub Actions**
 - **Docker Compose**
-- **nginx**
 
 # 開発のポイント
 
@@ -233,7 +263,7 @@ graph TB
 約 3,795 社のデータを Github Actions で一度に取得すると、API のレート制限やタイムアウトが発生します。
 （管理上も分けたかったという意図もあります。）
 
-### 解決策: 分割処理
+### 分割処理
 
 GitHub Actions で**4 段階のワークフロー**を構築し、自動連携させました。
 
@@ -253,43 +283,89 @@ CSV Combine & Export (全データ結合)
 ### 実装コード（ワークフロー連携部分）
 
 ```yaml
-# stock-fetch-sequential-1.yml
-name: "📊 Sequential Stock Fetch - Part 1"
+name: 📊 Sequential Stock Fetch - Part 1
+
+permissions:
+  contents: write
+  actions: write
+
 on:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: "開始理由（オプション）"
+        required: false
+        default: "Sequential stock data collection - Part 1"
+        type: string
 
 jobs:
-  fetch-part-1:
+  fetch-stocks-1:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      contents: write
+
+    outputs:
+      success: ${{ steps.process.outcome == 'success' }}
+
     steps:
-      - name: Checkout
+      - name: 🔄 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: "pip"
 
-      - name: Install dependencies
+      - name: 📦 Install Python dependencies
         run: |
-          cd stock_list
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r stock_list/requirements.txt
 
-      - name: Fetch stock data (Part 1)
+      - name: 📋 Show process info
         run: |
-          cd stock_list
-          python sumalize.py stocks_1.json
+          echo "🚀 Sequential Stock Fetch - Part 1/4"
+          echo "Processing file: stocks_1.json"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          echo "Timestamp: $(date)"
+          echo "Working directory: $(pwd)"
+          ls -la stock_list/
 
-      - name: Commit results
+      - name: 🏃 Process stocks_1.json
+        id: process
+        working-directory: ./stock_list
+        run: |
+          echo "🚀 Starting stock data collection for stocks_1.json..."
+          echo "Timestamp: $(date)"
+
+          python sumalize.py "stocks_1.json"
+
+          echo "✅ Part 1 completed successfully"
+          echo "📄 Generated files in Export directory:"
+          ls -la Export/ 2>/dev/null || echo "No files in Export directory"
+
+      - name: Git config and pull
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add stock_list/Export/
-          git commit -m "📊 Part 1 completed"
-          git push
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull origin main --rebase || true
 
-      # 次のワークフローを自動トリガー
+      - name: 💾 Commit changes - Part 1
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📊 Sequential Stock Fetch - Part 1/4 完了 ($(date +'%Y年%m月%d日 %H:%M'))"
+          push_options: --force
+
+  trigger-part-2:
+    needs: fetch-stocks-1
+    runs-on: ubuntu-latest
+    if: needs.fetch-stocks-1.outputs.success == 'true'
+
+    steps:
+      - name: 🔄 Checkout repository
+        uses: actions/checkout@v4
+
       - name: 🚀 Trigger Part 2
         uses: actions/github-script@v7
         with:
@@ -304,7 +380,9 @@ jobs:
                 reason: 'Auto-triggered by Part 1 completion'
               }
             });
+
             console.log('✅ Part 2 triggered successfully');
+            console.log('Response status:', result.status);
 ```
 
 ## 2. データ処理の効率化
@@ -385,13 +463,13 @@ def process_stock_list(json_file: str):
               index=False, encoding='utf-8-sig')
 ```
 
-## 3. フロントエンドの実装
+## 3. フロントエンドの実装（2025-10 Update: Drag & Drop 対応）
 
 :::message
-以下のコード例は簡略版です。実際のプロジェクトでは、23 項目のフィルター、URL パラメータ連携、ソート機能など、より高度な機能を実装しています。
+以下のコード例は簡略版です。実際のプロジェクトでは、ドラッグ&ドロップファイルアップロード、23 項目のフィルター、URL パラメータ連携、ソート機能など、より高度な機能を実装しています。
 :::
 
-### 動的 CSV パース
+### 動的 CSV パース & ドラッグ&ドロップアップロード
 
 ```typescript
 // csvParser.ts
@@ -485,59 +563,40 @@ export const useFilters = (data: StockData[]) => {
 ### docker-compose.yml
 
 ```yaml
-version: "3.8"
-
-services:
-  # データ収集サービス
+vservices:
+  # Pythonデータ収集サービス
   python-service:
     build:
       context: .
       dockerfile: Dockerfile.fetch
-    environment:
-      - STOCK_FILE=stocks_1.json
+    container_name: stock-data-collector
+    env_file:
+      - .env
     volumes:
-      - stock-data:/app/Export
-    command: >
-      sh -c "
-        python get_jp_stocklist.py &&
-        python split_stocks.py --input stocks_all.json --size 1000 &&
-        python sumalize.py ${STOCK_FILE} &&
-        python combine_latest_csv.py
-      "
+      # 株式データディレクトリをマウント
+      - ./stock_list:/app:rw
+      # Exportディレクトリを共有
+      - ./stock_list/Export:/app/Export:rw
+    environment:
+      - PYTHONUNBUFFERED=1
+      - STOCK_FILE=${STOCK_FILE:-stocks_sample.json}
+      - CHUNK_SIZE=${CHUNK_SIZE:-1000}
+    restart: "no"
 
-  # フロントエンドサービス
+  # React フロントエンドサービス
   frontend-service:
     build:
       context: .
       dockerfile: Dockerfile.app
+    container_name: stock-frontend
+    env_file:
+      - .env
     ports:
-      - "8080:80"
-    volumes:
-      - stock-data:/usr/share/nginx/html/csv:ro
-    depends_on:
-      python-service:
-        condition: service_completed_successfully
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:80",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-volumes:
-  stock-data:
-    driver: local
-
-networks:
-  stock-network:
-    driver: bridge
+      - "${PORT}:80"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+    command: >
+      sh -c "echo 'Frontend running on http://localhost:${PORT}' && nginx -g 'daemon off;'"
 ```
 
 # 使い方
@@ -556,11 +615,17 @@ cd yfinance-jp-screener
 cp .env.example .env
 # STOCK_FILEはデフォルトでは"stocks_sample.json"になっています。 必ず全て取得したい場合は"stocks_all.json"へ変えて下さい
 
+# Docker起動（データ収集 → ビルド → プレビュー）
 
-# Docker Composeで起動
-./scripts/start.sh --build # or docker-compose up --build
+# 📦 Python データ収集ビルド・実行
+docker-compose build python-service
+docker-compose run --rm python-service
 
-# ブラウザでアクセス
+# 🌐 フロントエンドビルド・起動
+docker-compose build frontend-service
+docker-compose up frontend-service
+
+# ブラウザでアクセス(環境変数のPORT番号によります)
 open http://localhost:8080
 ```
 
@@ -612,10 +677,12 @@ cd ../stock_search
 # 2. 依存関係をインストール
 npm install
 
-# 3. ビルド（ビルドしないとcsvが正常にpublicへコピーされません）
-npm run build
+# 3. 開発サーバー起動
+npm run dev
+# http://localhost:5173/ にアクセス
 
-# 4. プレビュー
+# または、本番ビルド後のプレビュー
+npm run build
 npm run preview
 # http://localhost:4173/ にアクセス
 
@@ -625,10 +692,32 @@ npm run preview
 
 ### GitHub Actions での自動収集
 
+:::message
+**重要**: GitHub Actions を使用する前に、以下の設定が必要です：
+
+リポジトリの **Settings** → **Actions** → **General** に移動
+
+- ✅ **"Read and write permissions"** を選択
+- ✅ **"Allow GitHub Actions to create and approve pull requests"** にチェック
+
+この設定により、ワークフローが生成した CSV ファイルをリポジトリにコミットできます。
+:::
+
+**実行手順:**
+
 1. リポジトリを**プライベート**でフォーク
-2. Actions → "Sequential Stock Fetch - Part 1" を実行
-3. 約 6〜8 時間後に全データ収集完了
-4. `stock_list/Export/` に結合済み CSV が生成される
+2. Settings → Actions で上記権限を設定
+3. Actions → "Stock List Update" を実行して新しいティッカーシンボルリストを取得
+4. Actions → "📊 Sequential Stock Fetch - Part 1" を実行
+5. 自動連鎖実行（Part 1 → Part 2 → Part 3 → Part 4 → CSV Combine）
+6. 約 3〜4 時間後に全データ収集完了
+7. `stock_list/Export/YYYYMMDD_combined.csv` に結合済み CSV が生成される
+
+**ワークフロー構成:**
+
+- `stock-list-update.yml` - JPX 株式リスト更新用
+- `stock-fetch-sequential-1~4.yml` - 4 段階データ収集（各 120 分タイムアウト）
+- `csv-combine-export.yml` - CSV 結合処理
 
 # 重要な注意事項
 
