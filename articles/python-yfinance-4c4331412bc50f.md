@@ -387,86 +387,597 @@ jobs:
 
 ## 2. データ処理の効率化
 
-:::message
-以下のコード例は、理解しやすさを優先して簡略化しています。実際のプロジェクトには、エラーハンドリング、ロギング機能、郵便番号から都道府県への変換など、より多くの機能が実装されています。
-:::
+### JPX 公式データの取得
 
-### JPX 公式データの活用
+JPX（日本取引所グループ）の公式ウェブサイトから、
+上場企業の最新株式リストをダウンロードし、JSON 形式で保存します。
 
 ```python
-# get_jp_stocklist.py（抜粋）
-import pandas as pd
 import requests
-from io import BytesIO
+import pandas as pd
+import xlrd
+from openpyxl import Workbook
+import json
+import logging
 
-def fetch_jpx_stock_list():
-    """JPX公式から最新の株式リストを取得"""
-    url = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
+# ログ設定
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+logger = logging.getLogger(__name__)
 
-    response = requests.get(url)
-    df = pd.read_excel(BytesIO(response.content))
+# ファイルのURL
+url = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
 
-    # 必要なカラムのみ抽出
-    stocks = df[['コード', '銘柄名', '市場・商品区分', '33業種区分']].to_dict('records')
+# ファイルをダウンロード
+response = requests.get(url)
 
-    # JSONで保存
-    with open('stocks_all.json', 'w', encoding='utf-8') as f:
-        json.dump(stocks, f, ensure_ascii=False, indent=2)
+# ダウンロードしたファイルを一時的なファイルに保存
+xls_file = "tickers.xls"
+with open(xls_file, "wb") as f:
+    f.write(response.content)
 
-    return stocks
+# .xlsファイルを .xlsx に変換
+xlsx_file = "converted.xlsx"
+workbook_xls = xlrd.open_workbook(xls_file)
+sheet_xls = workbook_xls.sheet_by_index(0)
+
+workbook_xlsx = Workbook()
+sheet_xlsx = workbook_xlsx.active
+
+# データを .xls から .xlsx に書き込む
+for row in range(sheet_xls.nrows):
+    for col in range(sheet_xls.ncols):
+        sheet_xlsx.cell(row=row + 1, column=col + 1).value = sheet_xls.cell_value(row, col)
+
+# .xlsx ファイルを保存
+workbook_xlsx.save(xlsx_file)
+
+# 変換された .xlsx ファイルを読み込む
+data = pd.read_excel(xlsx_file)
+
+# OR条件を使用して条件に一致する行を抽出
+condition = (
+    (data["市場・商品区分"] == "プライム（内国株式）")
+    | (data["市場・商品区分"] == "スタンダード（内国株式）")
+    | (data["市場・商品区分"] == "グロース（内国株式）")
+)
+
+filtered_df = data[condition]
+
+# 必要な列だけを抽出
+selected_df = filtered_df[["コード", "銘柄名", "市場・商品区分", "33業種区分"]]
+
+# DataFrame を JSON 形式（リストの辞書形式）に変換
+json_list = selected_df.to_dict(orient="records")
+
+# JSONファイルに保存
+with open("stocks_all.json", "w", encoding="utf-8") as f:
+    json.dump(json_list, f, ensure_ascii=False, indent=2)
+
+logger.info("JSONファイルに保存しました: stocks_all.json")
+
+```
+
+### ティッカーシンボルを json へ保存し直す（分割したいため）
+
+stocks_all.json を XXXX 社ずつのファイルに分割するスクリプト
+
+```python
+import json
+import math
+import argparse
+import sys
+import logging
+
+# ログ設定
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+logger = logging.getLogger(__name__)
+
+
+def split_stocks_json(input_file="stocks_all.json", chunk_size=1000):
+    """
+    stocks_all.jsonを指定されたサイズのチャンクに分割
+
+    Args:
+        input_file (str): 入力JSONファイル名
+        chunk_size (int): 1ファイルあたりの企業数
+    """
+    try:
+        # 元のJSONファイルを読み込み
+        with open(input_file, "r", encoding="utf-8") as f:
+            stock_data = json.load(f)
+
+        total_companies = len(stock_data)
+        total_files = math.ceil(total_companies / chunk_size)
+
+        logger.info(f"総企業数: {total_companies}社")
+        logger.info(f"分割ファイル数: {total_files}ファイル")
+        logger.info(f"1ファイルあたり: 最大{chunk_size}社")
+        logger.info("-" * 50)
+
+        # チャンクに分割して保存
+        for i in range(total_files):
+            start_idx = i * chunk_size
+            end_idx = min((i + 1) * chunk_size, total_companies)
+            chunk_data = stock_data[start_idx:end_idx]
+
+            # ファイル名を生成（stocks_1.json, stocks_2.json, ...）
+            output_filename = f"stocks_{i + 1}.json"
+
+            # JSON形式で保存
+            with open(output_filename, "w", encoding="utf-8") as f:
+                json.dump(chunk_data, f, ensure_ascii=False, indent=2)
+
+            logger.info(
+                f"✅ {output_filename}: {len(chunk_data)}社 (#{start_idx + 1}-#{end_idx})"
+            )
+
+        logger.info("-" * 50)
+        logger.info(f"分割完了: {total_files}個のファイルを作成しました")
+
+        # 各ファイルの情報を表示
+        logger.info("\n作成されたファイル:")
+        for i in range(total_files):
+            filename = f"stocks_{i + 1}.json"
+            with open(filename, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            logger.info(f"  {filename}: {len(data)}社")
+
+    except FileNotFoundError:
+        logger.error(f"❌ エラー: {input_file}が見つかりません")
+    except json.JSONDecodeError:
+        logger.error(f"❌ エラー: {input_file}の形式が正しくありません")
+    except Exception as e:
+        logger.error(f"❌ エラー: {e}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="日本株リストJSONファイルを指定されたサイズのチャンクに分割します",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+使用例:
+  python split_stocks.py                           # stocks_all.jsonを1000社ずつに分割
+  python split_stocks.py -i stocks_all.json       # stocks_all.jsonを1000社ずつに分割
+  python split_stocks.py -i data.json -s 500      # data.jsonを500社ずつに分割
+  python split_stocks.py --input stocks_all.json --size 2000  # 2000社ずつに分割
+        """,
+    )
+
+    parser.add_argument(
+        "-i",
+        "--input",
+        default="stocks_all.json",
+        help="入力JSONファイル名 (デフォルト: stocks_all.json)",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--size",
+        type=int,
+        default=1000,
+        help="1ファイルあたりの企業数 (デフォルト: 1000)",
+    )
+
+    parser.add_argument("-v", "--verbose", action="store_true", help="詳細な出力を表示")
+
+    args = parser.parse_args()
+
+    # バリデーション
+    if args.size <= 0:
+        logger.error("❌ エラー: チャンクサイズは正の整数である必要があります")
+        sys.exit(1)
+
+    logger.info("=" * 60)
+    logger.info("📊 stocks_all.json分割ツール")
+    logger.info("=" * 60)
+    logger.info(f"入力ファイル: {args.input}")
+    logger.info(f"チャンクサイズ: {args.size}社")
+    if args.verbose:
+        logger.info("詳細モード: ON")
+    logger.info("=" * 60)
+
+    split_stocks_json(input_file=args.input, chunk_size=args.size)
+
 ```
 
 #### yfinance での財務データ取得
 
+メイン処理は、シンプルに読み込んだ json 野中からティッカー絞るごとに回るだけです。
+
 ```python
-# sumalize.py（抜粋）
-import yfinance as yf
-import pandas as pd
-from typing import Dict, Any
+def main(json_filename="stocks_sample.json"):
+    """メイン処理
 
-def fetch_stock_data(ticker: str) -> Dict[str, Any]:
-    """個別銘柄の財務データを取得"""
+    Args:
+        json_filename (str): 処理対象のJSONファイル名
+    """
+    overall_start_time = time.time()
+    overall_start_datetime = datetime.now()
+
+    logger.info("=" * 80)
+    logger.info(f"日本株財務データ取得プロセス開始 - 開始時刻: {overall_start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"処理対象ファイル: {json_filename}")
+    logger.info("=" * 80)
+
+    # 指定されたJSONファイルからデータを読み込み
     try:
-        stock = yf.Ticker(f"{ticker}.T")  # 東証銘柄には.Tサフィックス
-        info = stock.info
-
-        return {
-            '銘柄コード': ticker,
-            '会社名': info.get('longName', 'N/A'),
-            '時価総額': info.get('marketCap', None),
-            'PBR': info.get('priceToBook', None),
-            'ROE': info.get('returnOnEquity', None),
-            '自己資本比率': info.get('debtToEquity', None),
-            '営業利益率': info.get('operatingMargins', None),
-            # ... その他の指標
-        }
-    except Exception as e:
-        print(f"Error fetching {ticker}: {e}")
+        with open(json_filename, "r", encoding="utf-8") as f:
+            stock_list = json.load(f)
+        logger.info(f"{json_filename}から{len(stock_list)}社の銘柄データを読み込みました")
+    except FileNotFoundError:
+        logger.error(f"❌ {json_filename}ファイルが見つかりません")
+        return None
+    except json.JSONDecodeError:
+        logger.error(f"❌ {json_filename}ファイルの形式が正しくありません")
         return None
 
-def process_stock_list(json_file: str):
-    """株式リストを処理"""
-    with open(json_file, 'r', encoding='utf-8') as f:
-        stocks = json.load(f)
+    logger.info("=" * 60)
+    logger.info("日本株財務データ取得開始")
+    logger.info("=" * 60)
 
     results = []
-    for stock in stocks:
-        data = fetch_stock_data(stock['コード'])
-        if data:
-            results.append(data)
-        time.sleep(1)  # レート制限対策
 
-    # CSVで保存
-    df = pd.DataFrame(results)
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    df.to_csv(f'Export/japanese_stocks_data_{timestamp}.csv',
-              index=False, encoding='utf-8-sig')
+    for i, stock in enumerate(stock_list, 1):
+        logger.info(f"\n[{i}/{len(stock_list)}]")
+        result = get_stock_data(stock)
+
+        if result:
+            results.append(result)
+
+        # API制限回避のため少し待機
+        if i < len(stock_list):
+            time.sleep(2)
+
+    # 結果をDataFrameに変換
+    if results:
+        df = pd.DataFrame(results)
+
+        # 列の順序を指定
+        columns_order = [
+            "会社名",
+            "銘柄コード",
+            "業種",
+            "優先市場",
+            "決算月",
+            # "会計基準",  # コメントアウト
+            "都道府県",
+            "時価総額",
+            "PBR",
+            "売上高",
+            "営業利益",
+            "営業利益率",
+            "当期純利益",
+            "純利益率",
+            "ROE",
+            "自己資本比率",
+            "PER(会予)",
+            "負債",
+            "流動負債",
+            "流動資産",
+            "総負債",
+            "現金及び現金同等物",
+            "投資有価証券",
+            "ネットキャッシュ",
+            "ネットキャッシュ比率",
+        ]
+
+        df = df.reindex(columns=columns_order)
+
+        overall_end_time = time.time()
+        overall_end_datetime = datetime.now()
+        overall_duration = overall_end_time - overall_start_time
+
+        # 結果を表示
+        logger.info("\n" + "=" * 60)
+        logger.info("取得結果サマリー")
+        logger.info("=" * 60)
+        logger.info(f"取得成功: {len(results)}社")
+        logger.info(f"取得失敗: {len(stock_list) - len(results)}社")
+
+        # CSVファイルに保存（Export フォルダに直接保存）
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base_name = json_filename.replace(".json", "").replace("stocks_", "")
+
+        filename = f"Export/japanese_stocks_data_{base_name}_{timestamp}.csv"
+        df.to_csv(filename, index=False, encoding="utf-8-sig")
+        logger.info(f"\nデータをCSVファイルに保存しました: {filename}")
+
+        # データの一部を表示
+        logger.info("\n取得データ（最初の3列）:")
+        logger.info(f"\n{df[['会社名', '銘柄コード', '時価総額', 'PBR', 'ROE']].head()}")
+
+        # 全体の実行時間をログ出力
+        logger.info("=" * 80)
+        logger.info("日本株財務データ取得プロセス完了")
+        logger.info(f"開始時刻: {overall_start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"終了時刻: {overall_end_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"総実行時間: {format_duration(overall_duration)}")
+        logger.info(
+            f"処理結果: 成功 {len(results)}社 / 失敗 {len(stock_list) - len(results)}社 / 合計 {len(stock_list)}社"
+        )
+        logger.info(f"平均処理時間: {format_duration(overall_duration / len(stock_list))}（1社あたり）")
+        logger.info(f"保存ファイル: {filename}")
+        logger.info("=" * 80)
+
+        return df
+    else:
+        overall_end_time = time.time()
+        overall_end_datetime = datetime.now()
+        overall_duration = overall_end_time - overall_start_time
+
+        logger.error("\n❌ データが取得できませんでした")
+        logger.error("=" * 80)
+        logger.error("日本株財務データ取得プロセス失敗")
+        logger.error(f"開始時刻: {overall_start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.error(f"終了時刻: {overall_end_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.error(f"総実行時間: {format_duration(overall_duration)}")
+        logger.error("すべてのデータ取得に失敗しました")
+        logger.error("=" * 80)
+        return None
+
+
 ```
 
-## 3. フロントエンドの実装（2025-10 Update: Drag & Drop 対応）
+個別銘柄の財務データを取得していきます。
+ティッカーシンボルごとにほしい情報を日本語に直しながら、データを作って返します。
+
+```python
+def get_stock_data(stock_info):
+    code = stock_info["コード"]
+    ticker_symbol = format_ticker(code)
+
+    start_time = time.time()
+    start_datetime = datetime.now()
+
+    logger.info(f"取得中: {stock_info['銘柄名']} ({ticker_symbol})")
+    logger.debug(
+        f"データ取得開始: {stock_info['銘柄名']} ({ticker_symbol}) - 開始時刻: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+    try:
+        # yfinanceでティッカー作成
+        ticker = yf.Ticker(ticker_symbol)
+
+        # 基本情報取得
+        info = ticker.info
+        if not info:
+            logger.warning(f"  ⚠️ 基本情報が取得できませんでした: {ticker_symbol}")
+            return None
+
+        # 時間を置いてAPIレート制限を回避
+        time.sleep(0.5)
+
+        # 財務諸表データ取得
+        try:
+            financials = ticker.financials
+            balance_sheet = ticker.balance_sheet
+        except Exception as e:
+            logger.warning(f"  ⚠️ 財務諸表取得エラー: {e}")
+            financials = pd.DataFrame()
+            balance_sheet = pd.DataFrame()
+
+        # 決算月を取得（バランスシートの最新期から）
+        settlement_period = None
+        if not balance_sheet.empty:
+            cols = balance_sheet.columns.tolist()
+            if cols:
+                # 最新決算期から日付部分のみ抽出（例：2025-03-31）
+                latest_period = cols[0]
+                if hasattr(latest_period, "strftime"):
+                    # datetimeオブジェクトの場合、日付部分のみ取得
+                    settlement_period = latest_period.strftime("%Y-%m-%d")
+                else:
+                    # 文字列の場合、時間部分を削除
+                    settlement_period = str(latest_period).split(" ")[0]
+
+        # PER(会予)のデバッグ
+        forward_pe = info.get("forwardPE", None)
+
+        # データ収集
+        result = {
+            "会社名": stock_info["銘柄名"] or safe_get_value(info, "longName") or safe_get_value(info, "shortName"),
+            "銘柄コード": code,
+            "業種": stock_info.get("33業種区分") or safe_get_value(info, "industry") or safe_get_value(info, "sector"),
+            "優先市場": stock_info.get("市場・商品区分", ""),
+            "決算月": settlement_period,
+            # "会計基準": None,  # yfinanceでは詳細不明 - コメントアウト
+            "都道府県": get_prefecture_from_zip(safe_get_value(info, "zip")) or None,
+            "時価総額": safe_get_value(info, "marketCap"),
+            "PBR": safe_get_value(info, "priceToBook"),
+            "PER(会予)": forward_pe,
+            "ROE": safe_get_value(info, "returnOnEquity"),
+            "営業利益率": safe_get_value(info, "operatingMargins"),
+            "純利益率": safe_get_value(info, "profitMargins"),
+        }
+
+        # 財務諸表からのデータ取得
+        if not financials.empty:
+            result["売上高"] = safe_get_financial_data(ticker, "financials", "Total Revenue")
+            result["営業利益"] = safe_get_financial_data(ticker, "financials", "Operating Income")
+            result["当期純利益"] = safe_get_financial_data(ticker, "financials", "Net Income")
+        else:
+            result.update({"売上高": None, "営業利益": None, "当期純利益": None})
+
+        if not balance_sheet.empty:
+            # バランスシートデータ（test.csvの項目名に基づく、フォールバック付き）
+            total_liabilities = safe_get_financial_data(
+                ticker,
+                "balance_sheet",
+                "Total Liabilities Net Minority Interest",
+                fallback_items=["Total Liab"],
+            )
+            current_liabilities = safe_get_financial_data(
+                ticker,
+                "balance_sheet",
+                "Current Liabilities",
+                fallback_items=["Total Current Liabilities"],
+            )
+            current_assets = safe_get_financial_data(
+                ticker,
+                "balance_sheet",
+                "Current Assets",
+                fallback_items=["Total Current Assets"],
+            )
+            total_equity = safe_get_financial_data(
+                ticker,
+                "balance_sheet",
+                "Stockholders Equity",
+                fallback_items=["Total Stockholder Equity"],
+            )
+            total_assets = safe_get_financial_data(ticker, "balance_sheet", "Total Assets")
+            total_debt = safe_get_financial_data(ticker, "balance_sheet", "Total Debt")
+            cash_and_equivalents = safe_get_financial_data(
+                ticker,
+                "balance_sheet",
+                "Cash And Cash Equivalents",
+                fallback_items=["Cash Cash Equivalents And Short Term Investments"],
+            )
+            investments = safe_get_financial_data(
+                ticker,
+                "balance_sheet",
+                "Available For Sale Securities",
+                fallback_items=[
+                    "Short Term Investments",
+                    "Investmentin Financial Assets",
+                ],
+            )
+
+            result.update({
+                "負債": total_liabilities,
+                "流動負債": current_liabilities,
+                "流動資産": current_assets,
+                "総負債": total_debt,
+                "現金及び現金同等物": cash_and_equivalents,
+                "投資有価証券": investments,
+            })
+
+            # 自己資本比率の計算
+            if total_equity and total_assets:
+                result["自己資本比率"] = total_equity / total_assets
+            else:
+                result["自己資本比率"] = None
+
+            # ネットキャッシュの計算（流動資産 + 投資有価証券×70% - 負債）
+            net_cash = calculate_net_cash(current_assets, investments, total_liabilities)
+            result["ネットキャッシュ"] = net_cash
+
+            # デバッグ用: ネットキャッシュ計算の詳細を表示
+            if any(x is not None for x in [current_assets, investments, total_liabilities]):
+                inv_70 = (investments * 0.7) if investments is not None else 0
+                logger.debug(
+                    f"  📊 ネットキャッシュ計算: {current_assets} + {inv_70:.0f} - {total_liabilities} = {net_cash}"
+                )
+
+            # ネットキャッシュ比率の計算
+            if net_cash and result["時価総額"]:
+                result["ネットキャッシュ比率"] = net_cash / result["時価総額"]
+            else:
+                result["ネットキャッシュ比率"] = None
+        else:
+            result.update({
+                "負債": None,
+                "流動負債": None,
+                "流動資産": None,
+                "総負債": None,
+                "現金及び現金同等物": None,
+                "投資有価証券": None,
+                "自己資本比率": None,
+                "ネットキャッシュ": None,
+                "ネットキャッシュ比率": None,
+            })
+
+        end_time = time.time()
+        end_datetime = datetime.now()
+        duration = end_time - start_time
+
+        logger.info(f"  ✅ 取得完了: {result['会社名']}")
+        logger.debug(
+            f"データ取得完了: {result['会社名']} ({ticker_symbol}) - 終了時刻: {end_datetime.strftime('%Y-%m-%d %H:%M:%S')} - 実行時間: {format_duration(duration)}"
+        )
+        return result
+
+    except Exception as e:
+        end_time = time.time()
+        end_datetime = datetime.now()
+        duration = end_time - start_time
+
+        logger.error(f"  ❌ エラー: {ticker_symbol} - {e}")
+        logger.error(
+            f"データ取得エラー: {stock_info['銘柄名']} ({ticker_symbol}) - 終了時刻: {end_datetime.strftime('%Y-%m-%d %H:%M:%S')} - 実行時間: {format_duration(duration)} - エラー: {e}"
+        )
+        return None
+
+
+```
+
+都道府県を知りたかったため、yfinace で郵便番号が取れるので、
+郵便番号から都道府県を取得するのには、
+
+https://github.com/GitHub30/digital-address.php
+
+こちらを使わせていただきました。（ありがとうございます！）
+
+```python
+def get_prefecture_from_zip(zip_code):
+    """郵便番号から都道府県名を取得（digital-address API使用）
+
+    Args:
+        zip_code (str): 郵便番号（ハイフンあり/なし両方対応）
+
+    Returns:
+        str: 都道府県名（例: "東京都", "大阪府"）
+        None: 取得失敗時またはデータなし
+
+    Note:
+        - digital-address APIを使用してリアルタイム取得
+        - 郵便番号の前処理（ハイフン・空白除去）を自動実行
+        - タイムアウト設定: 10秒
+    """
+    try:
+        if not zip_code:
+            return None
+
+        # 郵便番号の前処理（ハイフンや空白を除去）
+        clean_zip = str(zip_code).replace("-", "").replace("−", "").replace(" ", "").replace("　", "")
+
+        if len(clean_zip) < 7:  # 郵便番号として短すぎる場合
+            return None
+
+        # digital-address APIにリクエスト
+        url = f"https://digital-address.app/{clean_zip}"
+
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if data.get("addresses") and len(data["addresses"]) > 0:
+            # addressesの最初の要素からpref_nameを取得
+            address = data["addresses"][0]
+            prefecture = address.get("pref_name")
+            logger.debug(f"  🏢 都道府県: {prefecture}")
+            return prefecture
+
+        return None
+
+    except Exception as e:
+        logger.debug(f"    郵便番号変換エラー ({zip_code}): {e}")
+        return None
+
+```
+
+## 3. フロントエンドの実装
 
 :::message
-以下のコード例は簡略版です。実際のプロジェクトでは、ドラッグ&ドロップファイルアップロード、23 項目のフィルター、URL パラメータ連携、ソート機能など、より高度な機能を実装しています。
+ドラッグ&ドロップファイルアップロード、23 項目のフィルター、URL パラメータ連携、ソート機能などの機能を実装しています。
 :::
 
 ### 動的 CSV パース & ドラッグ&ドロップアップロード
