@@ -13,29 +13,32 @@ published: false
 :::
 
 いきなりですが。
-海外で働き始めたり旅行したりすると、日本の良さが身に染みたと感じた人は多いんじゃないでしょうか？
+海外旅行したり働き始めたりすると、日本の良さが身に染みたと感じた人は多いんじゃないでしょうか？
 なんかとりあえず外で働いてみたいと思っていましたが、今はいつ戻るかと考える日々です。（とにかく温泉に入りたい）
 
 また色々と各国を回る中で、日本企業ってアジア圏や他の国にもかなり進出してるんだなぁと実感しました。（そりゃそう）
 
 そんなこんなで日本株に興味を持ち
-昨年に[わが投資術](https://amzn.to/3IEVRkq)を参考にさせていただきながら実践し始めました。（まだ初めて一年目なので成績はわかりません。。。が、マイナスは無し）
+昨年に、[わが投資術](https://amzn.to/3IEVRkq)を購入し、参考にしながら実践していました。（まだ初めて一年目なので成績はわかりません。。。が、マイナスは無し）
 
 自分でバフェットコードや Claude yfinance mcp などを利用しながらスクリーニングしてみましたが、毎回決算が出るたびに手動とチャット相手にあるのも何かなぁ。と思いまして。
 
 じゃあ自動収集とスクリーニング用のアプリ作ってみよう(vibe coding)
 
 そんなノリから、**日本株全銘柄を自動収集・簡易スクリーニングできる Web アプリ**を開発しました。
+※現状、取得データの欠損などが見られるとことがありますが、暖かく見守っていただけると幸いです。
 
-この記事では、粗方の工程と実際にローカルでこれを試す方法を紹介します。
+この記事では、粗方の構成と、実際にローカルでこれを試す方法を紹介します。
 細かいコードなどはそこまで期待しないでください 😅
 
 ## 作ったもの
 
 ### 📊 [yfinance-jp-screener](https://github.com/testkun08080/yfinance-jp-screener)
 
-![サンプル](/images/python-yfinance-4c4331412bc50f/img_sample.png)
-_検索部分_
+<!-- ![サンプル](/images/python-yfinance-4c4331412bc50f/img_sample.png) -->
+
+![サンプル2](/images/python-yfinance-4c4331412bc50f/img_sample2.png)
+_CSV ファイルの読み込みと検索部分_
 ![検索結果](/images/python-yfinance-4c4331412bc50f/search_result.png)
 _検索結果(企業名はここでは伏せておきます)_
 
@@ -177,7 +180,7 @@ graph TB
         end
 
         subgraph "ブラウザ UI"
-            UI[Webアプリ起動<br/>localhost:8080/5173]
+            UI[Webアプリ起動<br/>localhost:8080(PORT設定依存)]
             Upload[CSV DnD<br/>アップロード機能]
             Table[データテーブル<br/>検索・フィルタ]
             Analysis[財務分析<br/>PBR/ROE/自己資本比率]
@@ -385,7 +388,7 @@ jobs:
             console.log('Response status:', result.status);
 ```
 
-## 2. データ処理の効率化
+## 2. データ収集について
 
 ### JPX 公式データの取得
 
@@ -647,7 +650,6 @@ def main(json_filename="stocks_sample.json"):
             "業種",
             "優先市場",
             "決算月",
-            # "会計基準",  # コメントアウト
             "都道府県",
             "時価総額",
             "PBR",
@@ -977,101 +979,558 @@ def get_prefecture_from_zip(zip_code):
 ## 3. フロントエンドの実装
 
 :::message
-ドラッグ&ドロップファイルアップロード、23 項目のフィルター、URL パラメータ連携、ソート機能などの機能を実装しています。
+実際のプロジェクトコードから抜粋して記載します。
+CSV のドラッグ&ドロップファイルアップロード、数十項目のフィルター、などを実装しています。
 :::
 
-### 動的 CSV パース & ドラッグ&ドロップアップロード
+### 全体の統合構造
+
+まず、アプリケーション全体の構成を把握しましょう。
+メインページ([DataPage.tsx](https://github.com/testkun08080/yfinance-jp-screener/blob/main/stock_search/src/pages/DataPage.tsx))では、ファイルアップロードと CSV ビューアを統合しています：
 
 ```typescript
-// csvParser.ts
-import Papa from "papaparse";
+// pages/DataPage.tsx（主要部分の抜粋）
+export const DataPage = () => {
+  const [selectedFile, setSelectedFile] = useState<CSVFile | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-export interface StockData {
-  [key: string]: string | number;
-}
+  const handleFileUpload = (file: File) => {
+    setUploadError(null);
 
-export const parseCSV = (csvText: string): StockData[] => {
-  const result = Papa.parse<StockData>(csvText, {
-    header: true,
-    dynamicTyping: true,
-    skipEmptyLines: true,
-    encoding: "UTF-8",
-  });
+    // アップロードされたファイルをCSVFile形式に変換
+    const uploadedCSVFile: CSVFile = {
+      name: file.name,
+      displayName: file.name,
+      size: file.size,
+      lastModified: new Date(file.lastModified).toISOString(),
+      url: URL.createObjectURL(file), // ブラウザでファイルを読み込むためのURL生成
+    };
 
-  return result.data;
-};
+    setSelectedFile(uploadedCSVFile);
+  };
 
-// 日本語金融データのフォーマット
-export const formatValue = (value: any, columnName: string): string => {
-  if (value === null || value === undefined) return "N/A";
+  return (
+    <div className="container mx-auto px-4 py-6">
+      {/* ファイルアップロード領域 */}
+      <FileUpload
+        onFileSelect={handleFileUpload}
+        loading={false}
+        error={uploadError}
+      />
 
-  // パーセンテージ
-  if (columnName.includes("率") || columnName.includes("ROE")) {
-    return `${(value * 100).toFixed(2)}%`;
-  }
-
-  // 金額（億円単位）
-  if (columnName.includes("時価総額") || columnName.includes("売上高")) {
-    return `${(value / 100000000).toFixed(2)}億円`;
-  }
-
-  // 倍率
-  if (columnName.includes("PBR") || columnName.includes("PER")) {
-    return `${value.toFixed(2)}倍`;
-  }
-
-  return value.toString();
+      {/* CSVビューア */}
+      {selectedFile ? (
+        <CSVViewer file={selectedFile} />
+      ) : (
+        <div className="card bg-base-100 shadow-sm">
+          {/* プレースホルダー表示 */}
+        </div>
+      )}
+    </div>
+  );
 };
 ```
 
-#### リアルタイム検索・フィルタリング
+### 1. ドラッグ&ドロップ CSV アップロード
+
+[FileUpload.tsx](https://github.com/testkun08080/yfinance-jp-screener/blob/main/stock_search/src/components/FileUpload.tsx)では、ドラッグ&ドロップとクリック選択の両方に対応したファイルアップロード機能を実装してます。
 
 ```typescript
-// useFilters.ts
-import { useMemo, useState } from "react";
-import { StockData } from "../types/stock";
+// components/FileUpload.tsx
+import React, { useRef } from "react";
+import { CSV_FILE_CONFIG } from "../constants/csv";
+
+interface FileUploadProps {
+  onFileSelect: (file: File) => void;
+  loading: boolean;
+  error: string | null;
+}
+
+export const FileUpload: React.FC<FileUploadProps> = ({
+  onFileSelect,
+  loading,
+  error,
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ファイル選択（クリック経由）
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onFileSelect(file);
+    }
+  };
+
+  // ドラッグオーバー時の処理
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault(); // デフォルトの動作を防ぐ
+  };
+
+  // ドロップ時の処理
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+
+    // CSVファイルのみ受け付ける
+    if (file && file.type === CSV_FILE_CONFIG.mimeType) {
+      onFileSelect(file);
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <h3 className="text-lg font-semibold text-base-content mb-4">
+        CSVファイル読み込み
+      </h3>
+
+      <div
+        className={`
+          border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+          transition-colors duration-200
+          ${
+            loading
+              ? "border-gray-300 bg-gray-50"
+              : "border-primary hover:border-primary-focus hover:bg-primary/5"
+          }
+        `}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onClick={handleClick}
+      >
+        {/* 隠しinput要素 */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={CSV_FILE_CONFIG.acceptAttribute}
+          onChange={handleFileChange}
+          className="hidden"
+          disabled={loading}
+        />
+
+        {loading ? (
+          // ローディング表示
+          <div className="flex flex-col items-center gap-3">
+            <div className="loading loading-spinner loading-lg text-primary"></div>
+            <p className="text-base-content/70">CSVファイルを読み込み中...</p>
+          </div>
+        ) : (
+          // アップロードプロンプト
+          <div className="flex flex-col items-center gap-3">
+            <div className="text-4xl text-primary">📁</div>
+            <div>
+              <p className="text-base-content font-medium mb-1">
+                CSVファイルをドラッグ&ドロップ
+              </p>
+              <p className="text-base-content/70 text-sm">
+                または
+                <span className="text-primary font-medium">
+                  クリックして選択
+                </span>
+              </p>
+            </div>
+            <div className="text-xs text-base-content/50">
+              対応形式: CSV ({CSV_FILE_CONFIG.extension})
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* エラー表示 */}
+      {error && (
+        <div className="alert alert-error mt-4">
+          <svg>...</svg>
+          <span>{error}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+### 2. CSV パースと数値処理
+
+[csvParser.ts](https://github.com/testkun08080/yfinance-jp-screener/blob/main/stock_search/src/utils/csvParser.ts)では、PapaParse ライブラリを使用して CSV データを解析し、数値フィールドを適切な型に変換してます。
+
+```typescript
+// utils/csvParser.ts
+import Papa from "papaparse";
+import type { StockData } from "../types/stock";
+import { CSV_PARSER_CONFIG, CSV_NUMERIC_FIELDS } from "../constants/csv";
+
+export const parseCSVFile = (file: File): Promise<StockData[]> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: CSV_PARSER_CONFIG.header, // 1行目をヘッダーとして扱う
+      encoding: CSV_PARSER_CONFIG.encoding, // UTF-8エンコーディング
+      skipEmptyLines: CSV_PARSER_CONFIG.skipEmptyLines, // 空行をスキップ
+
+      // ヘッダー名の前処理
+      transformHeader: (header: string) => {
+        return header.trim(); // 前後の空白を除去
+      },
+
+      // 各セルの値を変換
+      transform: (value: string, header: string) => {
+        // 数値フィールドの場合
+        if (
+          CSV_NUMERIC_FIELDS.includes(
+            header as (typeof CSV_NUMERIC_FIELDS)[number]
+          )
+        ) {
+          // 単位表記を除去（倍、%、円など）
+          const cleanValue = value
+            .replace(/,/g, "") // カンマ除去
+            .replace(/倍$/, "") // 「倍」除去
+            .replace(/%$/, "") // 「%」除去
+            .replace(/円$/, "") // 「円」除去
+            .trim();
+
+          const numValue = parseFloat(cleanValue);
+          return isNaN(numValue) ? null : numValue;
+        }
+
+        // 文字列フィールドの場合
+        return value.trim() || null;
+      },
+
+      // パース完了時
+      complete: (results) => {
+        if (results.errors.length > 0) {
+          console.error("CSV parsing errors:", results.errors);
+          reject(new Error("CSVファイルの解析中にエラーが発生しました"));
+          return;
+        }
+
+        try {
+          const stockData = results.data as StockData[];
+          // 会社名と銘柄コードが存在するデータのみフィルタリング
+          resolve(stockData.filter((row) => row.会社名 && row.銘柄コード));
+        } catch (error) {
+          reject(new Error("データの変換中にエラーが発生しました"));
+        }
+      },
+
+      // パースエラー時
+      error: (error: Error) => {
+        reject(
+          new Error(`CSVファイルの読み込みに失敗しました: ${error.message}`)
+        );
+      },
+    });
+  });
+};
+
+// 数値のフォーマット（日本語ロケール対応）
+export const formatNumber = (value: number | null, decimals = 0): string => {
+  if (value === null || value === undefined) return "-";
+  return value.toLocaleString("ja-JP", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
+// 通貨フォーマット（百万円単位）
+export const formatCurrency = (value: number | null): string => {
+  if (value === null || value === undefined) return "-";
+
+  // 百万円単位で表示
+  return formatNumber(value / 1000000, 0);
+};
+
+// パーセンテージフォーマット
+export const formatPercentage = (value: number | null): string => {
+  if (value === null || value === undefined) return "-";
+  return `${formatNumber(value * 100, 2)}%`;
+};
+```
+
+### 3. 高度なフィルタリング機能
+
+[useFilters.ts](https://github.com/testkun08080/yfinance-jp-screener/blob/main/stock_search/src/hooks/useFilters.ts)では、23 項目のフィルター条件を管理し、useMemo で効フィルタリング処理してます。
+
+```typescript
+// hooks/useFilters.ts（主要部分の抜粋）
+import { useState, useMemo } from "react";
+import type { StockData, SearchFilters } from "../types/stock";
+
+const initialFilters: SearchFilters = {
+  companyName: "",
+  stockCode: "",
+  industries: [],
+  market: [],
+  prefecture: [],
+  marketCapMin: null,
+  marketCapMax: null,
+  pbrMin: null,
+  pbrMax: null,
+  roeMin: null,
+  roeMax: null,
+  // ... 計23項目のフィルター
+};
 
 export const useFilters = (data: StockData[]) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [pbrMax, setPbrMax] = useState<number | null>(null);
-  const [roeMin, setRoeMin] = useState<number | null>(null);
+  const [filters, setFilters] = useState<SearchFilters>(initialFilters);
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
+  // フィルタリング処理（useMemoで最適化）
   const filteredData = useMemo(() => {
-    return data.filter((stock) => {
-      // 検索フィルタ
-      const matchesSearch =
-        searchTerm === "" ||
-        Object.values(stock).some((value) =>
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    const filtered = data.filter((stock) => {
+      // 1. 会社名フィルター（部分一致、大文字小文字区別なし）
+      if (
+        filters.companyName &&
+        !stock.会社名?.toLowerCase().includes(filters.companyName.toLowerCase())
+      ) {
+        return false;
+      }
 
-      // PBRフィルタ
-      const matchesPBR =
-        pbrMax === null || (stock.PBR && Number(stock.PBR) <= pbrMax);
+      // 2. 銘柄コードフィルター（部分一致）
+      if (filters.stockCode) {
+        const stockCode = stock.銘柄コード || stock.コード || "";
+        if (!stockCode.toString().includes(filters.stockCode)) {
+          return false;
+        }
+      }
 
-      // ROEフィルタ
-      const matchesROE =
-        roeMin === null || (stock.ROE && Number(stock.ROE) >= roeMin);
+      // 3. 業種フィルター（複数選択対応）
+      if (
+        filters.industries.length > 0 &&
+        !filters.industries.includes(stock.業種 || "")
+      ) {
+        return false;
+      }
 
-      return matchesSearch && matchesPBR && matchesROE;
+      // 4. 市場フィルター（複数選択対応）
+      if (
+        filters.market.length > 0 &&
+        !filters.market.includes(stock.優先市場 || "")
+      ) {
+        return false;
+      }
+
+      // 5. 都道府県フィルター（複数選択対応）
+      if (
+        filters.prefecture.length > 0 &&
+        !filters.prefecture.includes(stock.都道府県 || "")
+      ) {
+        return false;
+      }
+
+      // 6. PBR範囲フィルター（null/undefined対応）
+      if (
+        filters.pbrMin !== null &&
+        stock.PBR !== null &&
+        stock.PBR !== undefined &&
+        typeof stock.PBR === "number" &&
+        stock.PBR < filters.pbrMin
+      ) {
+        return false;
+      }
+      if (
+        filters.pbrMax !== null &&
+        stock.PBR !== null &&
+        stock.PBR !== undefined &&
+        typeof stock.PBR === "number" &&
+        stock.PBR > filters.pbrMax
+      ) {
+        return false;
+      }
+
+      // 7. ROE範囲フィルター（パーセント変換対応）
+      if (
+        filters.roeMin !== null &&
+        stock.ROE !== null &&
+        stock.ROE !== undefined &&
+        typeof stock.ROE === "number" &&
+        stock.ROE < filters.roeMin / 100 // UIは%、データは小数なので変換
+      ) {
+        return false;
+      }
+      if (
+        filters.roeMax !== null &&
+        stock.ROE !== null &&
+        stock.ROE !== undefined &&
+        typeof stock.ROE === "number" &&
+        stock.ROE > filters.roeMax / 100
+      ) {
+        return false;
+      }
+
+      // 8. 時価総額範囲フィルター（百万円単位からの変換）
+      if (
+        filters.marketCapMin !== null &&
+        stock.時価総額 !== null &&
+        stock.時価総額 !== undefined &&
+        typeof stock.時価総額 === "number" &&
+        stock.時価総額 < filters.marketCapMin * 1000000 // UI入力は百万円単位
+      ) {
+        return false;
+      }
+      if (
+        filters.marketCapMax !== null &&
+        stock.時価総額 !== null &&
+        stock.時価総額 !== undefined &&
+        typeof stock.時価総額 === "number" &&
+        stock.時価総額 > filters.marketCapMax * 1000000
+      ) {
+        return false;
+      }
+
+      // ... 他のフィルター条件（売上高、営業利益、自己資本比率など）
+
+      return true; // すべての条件を満たす場合のみtrue
     });
-  }, [data, searchTerm, pbrMax, roeMin]);
+
+    // ソート処理
+    if (sortConfig) {
+      filtered.sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        // null値の処理（nullは最後に配置）
+        if (aValue === null && bValue === null) return 0;
+        if (aValue === null) return 1;
+        if (bValue === null) return -1;
+
+        let result = 0;
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          result = aValue.localeCompare(bValue, "ja-JP"); // 日本語対応ソート
+        } else if (typeof aValue === "number" && typeof bValue === "number") {
+          result = aValue - bValue;
+        }
+
+        return sortConfig.direction === "desc" ? -result : result;
+      });
+    }
+
+    return filtered;
+  }, [data, filters, sortConfig]);
+
+  // フィルター更新関数
+  const updateFilter = (
+    key: keyof SearchFilters,
+    value: string | number | string[] | null
+  ) => {
+    const newFilters = {
+      ...filters,
+      [key]: value,
+    };
+    setFilters(newFilters);
+  };
+
+  // フィルタークリア
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   return {
+    filters,
     filteredData,
-    searchTerm,
-    setSearchTerm,
-    pbrMax,
-    setPbrMax,
-    roeMin,
-    setRoeMin,
+    sortConfig,
+    updateFilter,
+    clearFilters,
   };
 };
 ```
 
 ## 4. Docker 環境の構築
 
-### docker-compose.yml
+### Dockerfile.fetch
+
+シンプルにローカルにある設定を使って、コンテナ内でデータ収集をこないローカルに同期させます。
+
+```yaml
+# Python Data Collection Service Dockerfile
+# 株式データ収集サービス用Dockerfile
+
+FROM python:3.11-slim
+
+# 作業ディレクトリ設定
+WORKDIR /app
+
+# システムパッケージ更新と必要なツールをインストール
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Pythonの依存関係をコピーしてインストール
+COPY stock_list/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 株式データ処理スクリプトをコピー
+COPY stock_list/*.py ./
+COPY stock_list/stocks_sample.json ./
+
+# データディレクトリを作成
+RUN mkdir -p Export
+
+# 非rootユーザーで実行
+RUN useradd -m -u 1000 stockuser && \
+    chown -R stockuser:stockuser /app
+USER stockuser
+
+# 環境変数のデフォルト値を設定
+ENV STOCK_FILE=stocks_sample.json
+ENV CHUNK_SIZE=1000
+
+# デフォルトコマンド（株式リスト取得 → 分割 → データ収集）
+# 環境変数を使用して動的に設定
+CMD ["sh", "-c", "python get_jp_stocklist.py && python split_stocks.py --input stocks_all.json --size ${CHUNK_SIZE} && python sumalize.py ${STOCK_FILE} && python combine_latest_csv.py"]
+```
+
+### Dockerfile.app
+
+至ってシンプルなものです。
+ビルドしたものをローカルでサーブするようにします。
+
+```yaml
+# React Frontend Service Dockerfile
+# フロントエンドビルド・本番サービス用Dockerfile
+
+FROM node:20-alpine AS base
+
+# 作業ディレクトリ設定
+WORKDIR /app
+
+# 依存関係のインストール（キャッシュ最適化）
+FROM base AS deps
+COPY stock_search/package*.json ./
+RUN npm ci
+
+# ビルドステージ
+FROM base AS builder
+COPY stock_search/package*.json ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY stock_search/ .
+
+# TypeScriptコンパイルとViteビルド
+RUN npm run build --loglevel=info
+
+# 本番環境ステージ（nginx使用）
+FROM nginx:alpine AS runner
+
+# nginxの設定ファイルをコピー
+COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
+
+# ビルド成果物のみをコピー
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# ポート公開（nginx は 80 で待受）
+EXPOSE 80
+
+# nginx起動
+CMD ["nginx", "-g", "daemon off;"]
+
+```
+
+### docker-compose
+
+上記 Dockerfile をまとめた compose です。
 
 ```yaml
 vservices:
@@ -1128,16 +1587,20 @@ cp .env.example .env
 
 # Docker起動（データ収集 → ビルド → プレビュー）
 
-# 📦 Python データ収集ビルド・実行
-docker-compose build python-service
-docker-compose run --rm python-service
+# これでpythonとフロントエンドが起動します（pythonは裏で動き続けるので、終わったらstock_list/Export以下にあるcsvを使って下さい）
+docker-compose up
 
-# 🌐 フロントエンドビルド・起動
-docker-compose build frontend-service
-docker-compose up frontend-service
+# # 📦 Python データ収集ビルド・実行
+# docker-compose build python-service
+# docker-compose run --rm python-service
+
+# # 🌐 フロントエンドビルド・起動
+# docker-compose build frontend-service
+# docker-compose up frontend-service
 
 # ブラウザでアクセス(環境変数のPORT番号によります)
-open http://localhost:8080
+open http://localhost:8000
+
 ```
 
 **初回起動時の注意:**
@@ -1267,6 +1730,14 @@ npm run preview
 もしこの記事が役立ったら、[コーヒ一杯ほど](https://buymeacoffee.com/testkun08080)もらえると最高です
 
 最後までお読みいただきありがとうございます。
+何かおかしいとか、もっとこうした方がいいとかあれば issue やコメントでお待ちしています。
+
+sakana-ai が書いていた**EDINET**を使用したデータセットを作るいい感じのレポも見つけたので、これを yfinance の代わりとするのものいいのかなぁとも思います。（おそらくこれなら、データの開示については問題ない）
+時間見つけたら、やってみようかなぁと思います。
+
+興味がある方は、以下のレポをご覧ください。
+https://github.com/SakanaAI/edinet2dataset
+
 それでは 🙏
 
 **免責事項:**
