@@ -2,8 +2,9 @@
 title: "日本株3700社以上を分析。yfinance x「わが投資術」株式スクリーニングアプリを作った話（バイブコーディング）"
 emoji: "📊"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["python", "yfinance", "react", "docker", "githubactions"]
-published_at: 2025-10-27 11:30
+topics: [python, yfinance, react, docker, githubactions]
+published: false
+published: 2025-10-27 11:30
 ---
 
 # はじめに/作ったわけ
