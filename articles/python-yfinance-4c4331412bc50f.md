@@ -3,8 +3,8 @@ title: "日本株3700社以上を分析。yfinance x「わが投資術」株式�
 emoji: "📊"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [python, yfinance, react, docker, githubactions]
-published: false
-published: 2025-10-27 11:30
+published: true
+published_at: 2025-10-27 11:30
 ---
 
 # はじめに/作ったわけ
@@ -1249,9 +1249,9 @@ export const formatPercentage = (value: number | null): string => {
 };
 ```
 
-### 3. 高度なフィルタリング機能
+### 3. フィルタリング機能
 
-[useFilters.ts](https://github.com/testkun08080/yfinance-jp-screener/blob/main/stock_search/src/hooks/useFilters.ts)では、23 項目のフィルター条件を管理し、useMemo で効フィルタリング処理してます。
+[useFilters.ts](https://github.com/testkun08080/yfinance-jp-screener/blob/main/stock_search/src/hooks/useFilters.ts)では、フィルター条件を管理し、useMemo でフィルタリング処理してます。
 
 ```typescript
 // hooks/useFilters.ts（主要部分の抜粋）
@@ -1725,6 +1725,16 @@ npm run preview
 - [わが投資術（Amazon）](https://amzn.to/3IEVRkq)
 
 ---
+
+## バイブコーディングを行う前にやったこと
+
+大体の方々が同じやり方だと思いますが、僕はこんな感じです。
+
+- ざっくりの流れを AI(多分何でも良い)に渡す
+- 質問形式ですり合わせする
+- ファイルにまとめてもらって、Claude に渡す
+- Claude に渡すときに、もう一度読解させて、すり合わせる
+- 実行
 
 ## その他
 
