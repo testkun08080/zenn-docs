@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/"
+    xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:wp="http://wordpress.org/export/1.2/">
+    <channel>
+        <title>testkun08080</title>
+        <link>https://note.com/testkun08080</link>
+        <description>ゲーム/何でも屋 /(プログラミングとデザイン) 業界関わらず、面白い事出来ればいいなと考えてます。何か面白い事やりたい人、やってる人どうぞ宜しくです。</description>
+        <pubDate>Sat, 01 Nov 2025 18:56:28 +0900</pubDate>
+        <language>ja</language>
+        <wp:wxr_version>1.2</wp:wxr_version>
+        <wp:base_site_url>https://note.com/testkun08080</wp:base_site_url>
+        <wp:base_blog_url>https://note.com/testkun08080</wp:base_blog_url>
+        <wp:author>
+            <wp:author_id>1</wp:author_id>
+            <wp:author_login><![CDATA[testkun08080]]></wp:author_login>
+            <wp:author_email><![CDATA[note-export@example.com]]></wp:author_email>
+            <wp:author_display_name><![CDATA[testkun08080]]></wp:author_display_name>
+            <wp:author_first_name><![CDATA[]]></wp:author_first_name>
+            <wp:author_last_name><![CDATA[]]></wp:author_last_name>
+        </wp:author>
+        <generator>note.com</generator>
+        <item>
+            <title><![CDATA[テストタイト]]></title>
+            <link>https://note.com/testkun08080/n/nc6e481d239d4</link>
+            <dc:creator><![CDATA[testkun08080]]></dc:creator>
+            <guid isPermaLink="false">nc6e481d239d4</guid>
+            <description></description>
+            <content:encoded><![CDATA[<figure name="5b467060-68bd-423a-9cd9-b79a1363c5f9"><img src="/assets/nc6e481d239d4_93d3eb234b501c3e877c356e2f7444af.png"><figcaption></figcaption></figure><p name="edc15fad-796a-4c5e-888f-075ea328d967" id="edc15fad-796a-4c5e-888f-075ea328d967">こちらどういう記事が載せる</p><h2 name="a0b3d107-87ad-4c1e-b7f6-006b39538b94" id="a0b3d107-87ad-4c1e-b7f6-006b39538b94">大見出し</h2><p name="c243d7bb-a976-49cb-aa87-406c7dc5f525" id="c243d7bb-a976-49cb-aa87-406c7dc5f525">sdsdsdsdsdsddsdsds<br>sdsdsdsdsdsddsdsds</p><h3 name="d004a431-96a3-4f72-92d1-691f0162d889" id="d004a431-96a3-4f72-92d1-691f0162d889">小見出し</h3><p name="ff17a6a9-b81c-4817-aa83-d00537054cc9" id="ff17a6a9-b81c-4817-aa83-d00537054cc9">dsdsdsdddsds<br>dsdsdsdds</p><h2 name="919f9fc7-f236-4d02-9565-b5754a5c2570" id="919f9fc7-f236-4d02-9565-b5754a5c2570">画像</h2><figure name="37becfb8-07f4-4290-a6ee-7a62c6760735" id="37becfb8-07f4-4290-a6ee-7a62c6760735"><img src="/assets/nc6e481d239d4_1761990757-zs4t03YdVaF6SpWRMDEqJbiQ.png" alt="" width="400" height="400" contenteditable="false" draggable="false"><figcaption>キャプションはここ</figcaption></figure><h2 name="0c114f92-408b-497d-bd5f-eab0f553b23a" id="0c114f92-408b-497d-bd5f-eab0f553b23a">番号つきリスト</h2><ol name="43b58585-56fc-44c6-8725-635b3535dfde" id="43b58585-56fc-44c6-8725-635b3535dfde"><li><p name="e54875f0-5b08-4e33-8287-b56c3d6d59eb" id="e54875f0-5b08-4e33-8287-b56c3d6d59eb">テスト</p></li><li><p name="6ba44bf2-2b39-4cae-8e30-ccd29522f835" id="6ba44bf2-2b39-4cae-8e30-ccd29522f835">です</p></li><li><p name="c4fea091-d1e2-41bb-9c6c-72a51580c46f" id="c4fea091-d1e2-41bb-9c6c-72a51580c46f">よ</p></li></ol><h2 name="3c498905-437f-41ae-9c25-71fde2fb4fe4" id="3c498905-437f-41ae-9c25-71fde2fb4fe4">箇条書き</h2><ul name="538f0099-c4b5-4bcc-8db4-450892f0c8b8" id="538f0099-c4b5-4bcc-8db4-450892f0c8b8"><li><p name="c1ee1b1d-1488-4fe4-a7e7-6156edec2f5a" id="c1ee1b1d-1488-4fe4-a7e7-6156edec2f5a">テスト</p></li><li><p name="741855a8-7f9f-4214-bb36-6f5d0a34abc1" id="741855a8-7f9f-4214-bb36-6f5d0a34abc1">です</p></li><li><p name="077dc5a4-d5b3-40d6-a857-996e3bcf0d5c" id="077dc5a4-d5b3-40d6-a857-996e3bcf0d5c">よ</p></li></ul><h2 name="868aa848-3194-4011-b3b4-894bc9fbc5c9" id="868aa848-3194-4011-b3b4-894bc9fbc5c9">引用</h2><figure name="22a31255-b66f-4fb5-8a46-96efdc139e26" id="22a31255-b66f-4fb5-8a46-96efdc139e26"><blockquote><p name="e70a2341-7225-4187-9af6-a737fd437a84" id="e70a2341-7225-4187-9af6-a737fd437a84">引用です</p></blockquote><figcaption>出典を入力</figcaption></figure><h2 name="6adade78-ce93-4149-82bc-acb68931ade5" id="6adade78-ce93-4149-82bc-acb68931ade5">コード</h2><pre name="6d2a55d3-ddd1-43dd-9ea7-7139aa22432d" id="6d2a55d3-ddd1-43dd-9ea7-7139aa22432d"><code>hey</code></pre><p name="6bc12e1e-06bb-48dc-bd2a-3e15674b5074" id="6bc12e1e-06bb-48dc-bd2a-3e15674b5074"><br></p><h2 name="5f3abec2-489b-411c-9fa7-0ac53e1cac41" id="5f3abec2-489b-411c-9fa7-0ac53e1cac41">区切り線</h2><hr><p name="10fe2e64-d6a4-4a5a-b7b7-25be59ad70b2" id="10fe2e64-d6a4-4a5a-b7b7-25be59ad70b2"><br></p><h2 name="4c50b7ed-5ed8-419a-bd10-95ebd61f21da" id="4c50b7ed-5ed8-419a-bd10-95ebd61f21da">ファイル</h2><p name="0e589f22-1933-4ff5-867c-786850df599b">/assets/nc6e481d239d4_4685011cf4fba34706ce8f1d541086aa.png</p><p name="9422d218-8f0b-4451-b30a-c9f390cf457d" id="9422d218-8f0b-4451-b30a-c9f390cf457d"><br></p><h2 name="eb3d508f-e52a-4730-8ffa-b35ac15aa315" id="eb3d508f-e52a-4730-8ffa-b35ac15aa315">埋め込み</h2><p name="2e38f453-ee87-4d39-a5fb-32e30d1b1f36"><a href="https://twitter.com/testkun08080">https://twitter.com/testkun08080</a></p><p name="ea68cc76-a003-4a86-bdcc-be3dfd36a97d"><a href="https://zenn.dev/testkun08080">https://zenn.dev/testkun08080</a></p><h2 name="667d4791-a317-4e1a-9358-d6924e2ba2ab" id="667d4791-a317-4e1a-9358-d6924e2ba2ab">有料線エリア</h2><p name="b2db4d46-a08f-4330-b8a5-717f0988b61c" id="b2db4d46-a08f-4330-b8a5-717f0988b61c"><br></p>]]></content:encoded>
+            <excerpt:encoded></excerpt:encoded>
+            <wp:post_id>1</wp:post_id>
+            <pubDate>Sat, 01 Nov 2025 18:44:38 +0900</pubDate>
+            <wp:post_date><![CDATA[2025-11-01 18:44:38]]></wp:post_date>
+            <wp:post_date_gmt><![CDATA[2025-11-01 09:44:38]]></wp:post_date_gmt>
+            <wp:post_modified><![CDATA[2025-11-01 18:44:38]]></wp:post_modified>
+            <wp:post_modified_gmt><![CDATA[2025-11-01 09:44:38]]></wp:post_modified_gmt>
+            <wp:comment_status><![CDATA[open]]></wp:comment_status>
+            <wp:ping_status><![CDATA[open]]></wp:ping_status>
+            <wp:post_name><![CDATA[%E3%83%86%E3%82%B9%E3%83%88%E3%82%BF%E3%82%A4%E3%83%88]]></wp:post_name>
+            <wp:status><![CDATA[draft]]></wp:status>
+            <wp:post_parent>0</wp:post_parent>
+            <wp:menu_order>0</wp:menu_order>
+            <wp:post_type><![CDATA[post]]></wp:post_type>
+            <wp:post_password><![CDATA[]]></wp:post_password>
+            <wp:is_sticky>0</wp:is_sticky>
+        </item>
+    </channel>
+</rss>
