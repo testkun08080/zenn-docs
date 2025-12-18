@@ -1,9 +1,10 @@
 ---
 title: "FastMCP Cloud にデプロイした Amazon Product API MCP を Claude から呼ぶまで"
 emoji: "🛒"
-type: "tech" # tech: 技術記事 / idea: アイデア
+type: "tech"
 topics: [claude, fastmcp, python, amazon, mcp]
-published: false
+published: true
+published_at: 2025-12-19 5:30
 ---
 
 ## はじめに
@@ -16,11 +17,11 @@ MCP は適当に自分用にローカルで作成しては消しとばす、な�
 クライアントからの設定の例は Claude code と Claude desktop にしていますが、ヘッダーなどが指定できればどこからでも使えるはずです。
 
 実際のコード部分にはあまり触れませんが、やっていることはシンプルです。
-Amazon Product API のラッパーを使って、mcp ようにさらにツールとして呼び出せるようにラップし。
-尚且つ、キーデータなどはヘッダーを通して受け取れる様にしているだけです。
+Amazon Product API のラッパーを使って、mcp 様にツールとして呼び出せるようにラップし他だけです。
+キーデータなどはヘッダーを通して受け取れる様にしているだけです。
 
-これらを FastMCPCloud（`https://amazon-product-ad-api.fastmcp.app/mcp`）に、デプロイし、
-Claude Code と Claude Desktop からヘッダーで認証情報を指定して接続する方法を説明します。
+これらを FastMCPCloud に、デプロイし、
+Claude code と Claude Desktop からヘッダーで認証情報を指定して接続する方法を説明します。
 
 :::message alert
 現在デプロイしているサービスを止める予定はありませんが、悪意あるアクセスや無料枠を超えそうになれば非公開にします。
@@ -35,6 +36,7 @@ https://x.com/testkun08080/status/2001087697805566210
 
 まず Amazon Product API だけでは、KindleUnlimited かどうかを判定する術がなさそうなので、動画では結果にしたいして Claude が頑張ってアイテムの詳細などから探そうとしていますが、結果はまぁ微妙です 😅
 が、まぁざっくりやりたい事はできたので、一旦よしとします。
+(本当は Kindle or Kindle Unlimited とかを判別して AI 本を弾き飛ばした検索をしたかったんですが笑)
 
 ## FastMCP Cloud へのデプロイ手順
 
@@ -164,7 +166,6 @@ if __name__ == "__main__":
 
 ## Claude Desktop からの接続（Mac）...手動コマンド設定
 
-アコーディオン(タイトル)
 :::message alert
 Claude Desktop を開くたびに、認証を促されます。
 ブラウザをクリックしたり、アクティブにしないと Claude が Desktop がフリーズした様になる可能性があります。
@@ -227,7 +228,7 @@ https://modelcontextprotocol.io/docs/develop/connect-remote-servers
 認証を促すブラウザが開くと思いますので、指示に従って fastmcpcloud で認証します。
 ※開発者モードを ON にしていない人は、してみてください。
 
-## Claude cli からの接続
+## Claude code からの接続
 
 ### コマンドで追加
 
@@ -263,102 +264,35 @@ amazon-product-api-testを使って、任天堂のゲームを調べてくださ
 
 ## 利用可能な MCP ツール
 
-:::details このサーバーは以下の 5 つのツールを提供しています：
+このサーバーは以下の 5 つのツールを提供しています：
 
-### 1. `search_products`
+:::details 1. search_products - キーワードで商品検索
 
 キーワードで Amazon 商品を検索します。
 
-**パラメータ:**
+:::
 
-- `keyword` (str, 必須): 検索キーワード（例: "ワイヤレスイヤホン", "gaming laptop"）
-- `max_results` (int, オプション): 取得する最大結果数（デフォルト: 10、最大: 10/リクエスト）
-- `category` (str, オプション): カテゴリフィルター（例: "Electronics", "Books"）
-
-**戻り値:**
-
-- `query`: 検索クエリ
-- `total_results`: 検索結果の総数
-- `products`: 商品リスト（各商品には ASIN、タイトル、URL、価格、評価、画像などが含まれます）
-
-### 2. `get_product_details`
+:::details 2. get_product_details - ASIN で商品詳細取得
 
 ASIN で商品の詳細情報を取得します。
 
-**パラメータ:**
+:::
 
-- `asin` (str, 必須): Amazon Standard Identification Number（例: "B08N5WRWNW"）
-
-**戻り値:**
-
-- 商品の基本情報（ASIN、タイトル、URL、価格、評価、画像など）
-- `description`: 商品説明
-- `specifications`: 仕様情報（辞書形式）
-- `reviews_summary`: レビューサマリー
-- `top_reviews`: トップレビューのリスト
-
-### 3. `get_product_variations`
+:::details 3. get_product_variations - 商品バリエーション取得
 
 商品のバリエーション（色、サイズなど）を取得します。
 
-**パラメータ:**
+:::
 
-- `asin` (str, 必須): Amazon Standard Identification Number（例: "B08N5WRWNW"）
-- `languages_of_preference` (list[str], オプション): 言語コードのリスト（例: ["ja_JP", "en_US"]）
-
-**戻り値:**
-
-- `parent_asin`: 親商品の ASIN
-- `variation_count`: バリエーション数
-- `variation_dimensions`: バリエーションディメンションのリスト（例: ["Color", "Size"]）
-- `variations`: バリエーション商品のリスト（各バリエーションには`variation_dimension`と`variation_value`が含まれます）
-
-### 4. `get_browse_nodes`
+:::details 4. get_browse_nodes - カテゴリ情報取得
 
 ブラウズノード（カテゴリ）情報を取得します。カテゴリの階層構造や子カテゴリ、親カテゴリの情報を取得できます。
 
-**パラメータ:**
+:::
 
-- `browse_node_ids` (list[str], 必須): ブラウズノード ID のリスト（例: ["3210981", "2127209051"]）
-- `languages_of_preference` (list[str], オプション): 言語コードのリスト（例: ["ja_JP", "en_US"]）
-
-**戻り値:**
-
-- `browse_nodes`: ブラウズノードのリスト（各ノードには以下が含まれます）
-  - `id`: ノード ID
-  - `display_name`: 表示名
-  - `context_free_name`: コンテキストフリー名
-  - `children`: 子ノードのリスト
-  - `ancestors`: 親ノードのリスト
-
-**よく使われるブラウズノード ID（日本）:**
-
-- 家電＆カメラ: `3210981`
-- パソコン・周辺機器: `2127209051`
-- ホーム&キッチン: `3828871`
-- 本: `465392`
-
-### 5. `check_api_status`
+:::details 5. check_api_status - API 設定確認
 
 API の設定と動作を確認します。認証情報が正しく設定されているか、API 接続が正常に動作するかを確認できます。
-
-**パラメータ:**
-
-- なし
-
-**戻り値:**
-
-- `status`: ステータス（"ok", "error", "not_configured"）
-- `message`: ステータスメッセージ
-- `configuration`: 設定値（API キー、ID など、機密情報はマスクされます）
-- `api_test_result`: API テスト呼び出しの結果
-
-**このツールの用途:**
-
-- 接続時の初期チェック
-- 認証情報の検証
-- API 接続の診断
-- トラブルシューティング
 
 :::
 
