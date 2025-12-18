@@ -18,7 +18,7 @@
   "homepage": "https://github.com/testkun08080/zenn-docs#readme",
   "description": "",
   "dependencies": {
-    "zenn-cli": "^0.2.10"
+    "zenn-cli": "^0.2.11"
   },
   "devDependencies": {
     "@qiita/qiita-cli": "^1.6.2"
