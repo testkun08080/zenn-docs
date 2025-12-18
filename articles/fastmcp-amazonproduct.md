@@ -48,14 +48,11 @@ https://x.com/testkun08080/status/2001087697805566210
 #### ステップ 1: FastMCP プロジェクトの作成
 
 まずシンプルに fastmcp を使って mcp をローカルで試します。
-動くことが確認できたら MCP インスペクターを使って、テストしておくとなお良いかもしれません。
+動くことが確認できたら MCP インスペクターを使って、テストして置くと尚良いかもしれません。
 
 https://modelcontextprotocol.io/docs/tools/inspector
 
-uv を使っている場合、pyproject.toml を勝手にデプロイしたら、読み込んでくれるはずです。
-ただし、デプロイがうまいくかない場合は、requirements.txt などへ書き出す必要があるかません。
-
-終わったら、適当にレポジトリを作成していただいて、プッシュしておきます。
+終わったら、適当にレポジトリを作成して頂いて、プッシュしておきます。
 
 #### ステップ 2: FastMCP Cloud にデプロイ
 
@@ -120,15 +117,15 @@ client = Client(transport=StreamableHttpTransport(MCP_URL, headers=HEADERS, auth
 async def test_connection():
     """MCP server 接続テスト"""
     print("=" * 60)
-    print("1. Testing Connection...")
+    print("接続テスト開始...")
     print("=" * 60)
     try:
         async with client:
             await client.ping()
-            print("✅ Connection successful!")
+            print("✅ 接続成功!")
             return True
     except Exception as e:
-        print(f"❌ Connection failed: {e}")
+        print(f"❌ 接続失敗: {e}")
         return False
 
 
@@ -250,29 +247,23 @@ claude
 ```
 
 などを打つと認証しますか？解かれると思うので、実行すれば以下のようが画面がブラウザで開きます。
-※fastmcpcloud アカウントが必要です。
+FastMCPCloud アカウントが必要です。
 
 ![認証イメージ](/images/fastmcp-amazonproduct/ss-1.png)
-
-### 設定の確認
-
-設定後、Claude Code で以下のように確認できます：
-
-1. Claude Code を再起動
-2. チャットで `@amazon-product-ad-api` と入力して、サーバーが認識されているか確認
-3. 商品検索を試してみる：「ワイヤレスイヤホンを検索して」
 
 ## 使い方
 
 設定が終わったら、あとは各々のインターフェイスで、適当に質問してみてください。
 
 ```text
-amazon-product-api-testを使って、任天堂のゲームを調べてください。など。
+amazon-product-api-testを使って、任天堂のゲームを調べてください。
 ```
+
+など。
 
 ## 利用可能な MCP ツール
 
-:::details このサーバーは以下の 6 つのツールを提供しています：
+:::details このサーバーは以下の 5 つのツールを提供しています：
 
 ### 1. `search_products`
 
@@ -306,30 +297,7 @@ ASIN で商品の詳細情報を取得します。
 - `reviews_summary`: レビューサマリー
 - `top_reviews`: トップレビューのリスト
 
-### 3. `get_category_ranking`
-
-SalesRank を使用してカテゴリ内のトップ商品を取得します。
-
-**パラメータ:**
-
-- `category` (str, 必須): カテゴリ名（例: "ガジェット", "スマートフォン", "ワイヤレスイヤホン"）
-- `browse_node_id` (str, オプション): 特定の Amazon カテゴリ ID（例: "3210981"）
-- `limit` (int, オプション): 取得する商品数（デフォルト: 10）
-
-**戻り値:**
-
-- `category`: カテゴリ名
-- `category_id`: カテゴリ ID
-- `products`: ランキング商品リスト（各商品には`rank_position`が含まれます）
-
-**よく使われるブラウズノード ID（日本）:**
-
-- 家電＆カメラ: `3210981`
-- パソコン・周辺機器: `2127209051`
-- ホーム&キッチン: `3828871`
-- 本: `465392`
-
-### 4. `get_product_variations`
+### 3. `get_product_variations`
 
 商品のバリエーション（色、サイズなど）を取得します。
 
@@ -345,7 +313,7 @@ SalesRank を使用してカテゴリ内のトップ商品を取得します。
 - `variation_dimensions`: バリエーションディメンションのリスト（例: ["Color", "Size"]）
 - `variations`: バリエーション商品のリスト（各バリエーションには`variation_dimension`と`variation_value`が含まれます）
 
-### 5. `get_browse_nodes`
+### 4. `get_browse_nodes`
 
 ブラウズノード（カテゴリ）情報を取得します。カテゴリの階層構造や子カテゴリ、親カテゴリの情報を取得できます。
 
@@ -370,7 +338,7 @@ SalesRank を使用してカテゴリ内のトップ商品を取得します。
 - ホーム&キッチン: `3828871`
 - 本: `465392`
 
-### 6. `check_api_status`
+### 5. `check_api_status`
 
 API の設定と動作を確認します。認証情報が正しく設定されているか、API 接続が正常に動作するかを確認できます。
 
