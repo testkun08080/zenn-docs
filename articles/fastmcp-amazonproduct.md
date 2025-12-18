@@ -4,7 +4,7 @@ emoji: "🛒"
 type: "tech"
 topics: [claude, fastmcp, python, amazon, mcp]
 published: true
-published_at: 2025-12-19 5:30
+published_at: 2025-12-19 05:30
 ---
 
 ## はじめに
