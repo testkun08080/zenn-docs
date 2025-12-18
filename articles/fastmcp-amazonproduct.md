@@ -20,7 +20,7 @@ MCP は適当に自分用にローカルで作成しては消しとばす、な�
 Amazon Product API のラッパーを使って、mcp 用にツールとして呼び出せるようにラップしただけです。
 キーデータなどはヘッダーを通して受け取れる様にしてます。
 
-これらを FastMCPCloud に、デプロイし、
+これらを FastMCPCloud にデプロイし、
 Claude code と Claude Desktop からヘッダーで認証情報を指定して接続する方法を説明します。
 
 :::message alert
